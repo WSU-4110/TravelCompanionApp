@@ -1,0 +1,20 @@
+package com.example.api;
+
+import com.example.service.CognitoAuthService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final CognitoAuthService authService;
+
+    public AuthController(CognitoAuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        return authService.userlogin(username, password);
+    }
+}
