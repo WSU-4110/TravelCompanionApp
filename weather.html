@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather - Travel Companion</title>
+    <style>
+        /* General page styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header styling */
+        .header {
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* Main content section */
+        .content {
+            margin-top: 80px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Weather information box */
+        .weather-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        /* Back button styling */
+        .back-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Back button styling */
+        .back-btn a {
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        /* Back button hover effect */
+        .back-btn a:hover {
+            background: #003f7f;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header section -->
+    <div class="header">Weather</div>
+
+    <!-- Main content section -->
+    <div class="content">
+        <h2>Current Weather and Forecast</h2>
+
+        <!-- Weather information -->
+        <div class="weather-info">
+            <p>🌤️ City: <strong>Your Location</strong></p>
+            <p>🌡️ Temperature: <strong>25°C</strong></p>
+            <p>🌬️ Wind Speed: <strong>10 km/h</strong></p>
+            <p>🌧️ Forecast: <strong>Sunny</strong></p>
+        </div>
+
+        <!-- Back to homepage button -->
+        <div class="back-btn">
+            <a href="homepage.html">Back to Homepage</a>
+        </div>
+    </div>
+
+</body>
+</html>
