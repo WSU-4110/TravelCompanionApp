@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up - Travel Companion</title>
+    <style>
+        /* Basic styling for layout, form, and buttons */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* App title styling */
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            background: #007bff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Login/Signup container styling */
+        .container {
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        /* Input field styling */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        /* Button styling */
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        /* Button hover effect */
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* Toggle link styling (for switching between login and signup) */
+        .toggle-link {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- App Title -->
+    <div class="title">Travel Companion App</div>
+
+    <!-- Container for Login & Signup Forms -->
+    <div class="container">
+
+        <!-- Login Form -->
+        <h1 id="formTitle">Login</h1>
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <p>Don't have an account? <span class="toggle-link" onclick="showRegister()">Sign Up</span></p>
+        </div>
+
+        <!-- Registration Form (Hidden by default) -->
+        <div id="registerForm" style="display:none;">
+            <input type="text" id="username" placeholder="Username">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="register()">Sign Up</button>
+            <p>Already have an account? <span class="toggle-link" onclick="showLogin()">Login</span></p>
+        </div>
+
+    </div>
+
+    <script>
+        // Function to switch to the signup form
+        function showRegister() {
+            document.getElementById("formTitle").innerText = "Sign Up";
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("registerForm").style.display = "block";
+        }
+
+        // Function to switch to the login form
+        function showLogin() {
+            document.getElementById("formTitle").innerText = "Login";
+            document.getElementById("registerForm").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
+        }
+
+        // Function to handle user registration
+        function register() {
+            let username = document.getElementById("username").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            
+            if (username && email && password) {
+                let users = JSON.parse(localStorage.getItem("users")) || [];
+
+                // Check if email is already registered
+                if (users.some(user => user.email === email)) {
+                    alert("Email already registered. Please log in.");
+                    return;
+                }
+
+                // Save user info to localStorage
+                users.push({ username, email, password });
+                localStorage.setItem("users", JSON.stringify(users));
+
+                alert("Account created successfully! Please log in.");
+                showLogin();
+            } else {
+                alert("Please fill all fields.");
+            }
+        }
+
+        // Function to handle user login
+        function login() {
+            let email = document.getElementById("loginEmail").value;
+            let password = document.getElementById("loginPassword").value;
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+
+            // Check if user exists
+            let user = users.find(user => user.email === email && user.password === password);
+            
+            if (user) {
+                // Save logged-in user and redirect to homepage
+                localStorage.setItem("loggedInUser", JSON.stringify(user));
+                window.location.href = "homepage.html";
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        }
+    </script>
+
+</body>
+</html>

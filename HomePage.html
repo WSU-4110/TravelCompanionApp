@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage - Travel Companion</title>
+    <style>
+        /* General page styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header styling */
+        .header {
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Username display (top left) */
+        .username {
+            position: absolute;
+            left: 20px;
+            font-size: 18px;
+        }
+
+        /* Navigation menu */
+        .nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 80px;
+        }
+
+        /* Navigation buttons */
+        .nav a {
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            text-align: center;
+            width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button hover effect */
+        .nav a:hover {
+            background: #003f7f;
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Logout button container */
+        .logout-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        /* Logout button styling */
+        .logout-container button {
+            background: #ff4d4d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Logout button hover effect */
+        .logout-container button:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+
+        /* Footer section */
+        .footer {
+            margin-top: auto;
+            font-size: 14px;
+            color: #444;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header section with username display -->
+    <div class="header">
+        <span class="username" id="usernameDisplay"></span>
+        <span>Homepage</span>
+    </div>
+
+    <!-- Navigation menu with links to different sections -->
+    <div class="nav">
+        <a href="hotels.html">Hotels</a>
+        <a href="airbnb.html">Airbnb</a>
+        <a href="weather.html">Weather</a>
+        <a href="restaurants.html">Restaurants</a>
+        <a href="attractions.html">Attractions</a>
+        <a href="foodspots.html">Food Spots</a>
+        <a href="crime-news.html">Crime/News</a>
+    </div>
+
+    <!-- Logout button to return to the login page -->
+    <div class="logout-container">
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Footer section -->
+    <div class="footer">&copy; 2025 Travel Companion App. All Rights Reserved.</div>
+
+    <script>
+        // Function to log out the user and redirect to login page
+        function logout() {
+            localStorage.removeItem("loggedInUser"); // Remove logged-in user data
+            window.location.href = "login.html"; // Redirect to login page
+        }
+
+        // Function to check if a user is logged in when the page loads
+        window.onload = function () {
+            let user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+            // If no user is found, redirect to login page
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                // Display the logged-in user's username
+                document.getElementById("usernameDisplay").innerText = user.username;
+            }
+        };
+    </script>
+
+</body>
+</html>
