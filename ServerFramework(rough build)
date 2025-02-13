@@ -1,0 +1,165 @@
+require('dotenv').config();
+const express = require('express');
+const AWS = require('aws-sdk');
+const cors = require('cors');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
+const app = express();
+const port = 5000;
+
+// Middleware
+app.use(express.json());
+app.use(cors());
+
+// AWS Configuration
+AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
+});
+
+const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const USERS_TABLE = process.env.DYNAMODB_USERS_TABLE;
+const POSTS_TABLE = process.env.DYNAMODB_POSTS_TABLE;
+const CHECKINS_TABLE = process.env.DYNAMODB_CHECKINS_TABLE;
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const PLACES_API_KEY = process.env.PLACES_API_KEY;
+const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
+const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// ✅ User Registration
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = {
+        TableName: USERS_TABLE,
+        Item: {
+            id: uuidv4(),
+            username,
+            email,
+            password: hashedPassword,
+            createdAt: new Date().toISOString()
+        }
+    };
+
+    try {
+        await dynamoDB.put(user).promise();
+        res.json({ message: "User registered successfully" });
+    } catch (error) {
+        console.error("Error registering user:", error);
+        res.status(500).json({ error: "Registration failed" });
+    }
+});
+
+// ✅ User Login (JWT Authentication)
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const params = {
+        TableName: USERS_TABLE,
+        FilterExpression: "email = :email",
+        ExpressionAttributeValues: { ":email": email }
+    };
+
+    try {
+        const data = await dynamoDB.scan(params).promise();
+        if (data.Items.length === 0) {
+            return res.status(400).json({ error: "User not found" });
+        }
+
+        const user = data.Items[0];
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) {
+            return res.status(400).json({ error: "Invalid password" });
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "2h" });
+        res.json({ message: "Login successful", token });
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ error: "Login failed" });
+    }
+});
+
+// ✅ Get Weather Updates
+app.get('/weather/:city', async (req, res) => {
+    const city = req.params.city;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
+
+    try {
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Weather API Error:", error);
+        res.status(500).json({ error: "Failed to fetch weather data" });
+    }
+});
+
+// ✅ Fetch Local Hotels, Restaurants, Attractions
+app.get('/places/:type/:location', async (req, res) => {
+    const type = req.params.type; // hotel, restaurant, attraction
+    const location = req.params.location;
+
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${type}+in+${location}&key=${PLACES_API_KEY}`;
+
+    try {
+        const response = await axios.get(url);
+        res.json(response.data.results);
+    } catch (error) {
+        console.error("Places API Error:", error);
+        res.status(500).json({ error: "Failed to fetch location data" });
+    }
+});
+
+// ✅ User Check-in
+app.post('/checkin', async (req, res) => {
+    const { username, location } = req.body;
+    const checkinEntry = {
+        TableName: CHECKINS_TABLE,
+        Item: {
+            id: uuidv4(),
+            username,
+            location,
+            timestamp: new Date().toISOString()
+        }
+    };
+
+    try {
+        await dynamoDB.put(checkinEntry).promise();
+        res.json({ message: "User checked in", checkin: checkinEntry.Item });
+    } catch (error) {
+        console.error("Error in check-in:", error);
+        res.status(500).json({ error: "Failed to check in" });
+    }
+});
+
+// ✅ Fetch Check-in Statistics
+app.get('/checkins/:location', async (req, res) => {
+    const params = {
+        TableName: CHECKINS_TABLE,
+        FilterExpression: "location = :loc",
+        ExpressionAttributeValues: { ":loc": req.params.location }
+    };
+
+    try {
+        const data = await dynamoDB.scan(params).promise();
+        res.json({ checkinCount: data.Items.length });
+    } catch (error) {
+        console.error("Error fetching check-ins:", error);
+        res.status(500).json({ error: "Failed to retrieve check-in data" });
+    }
+});
+
+// ✅ Real-time Chat (Using AWS AppSync WebSockets)
+app.get('/chat/:location', async (req, res) => {
+    res.json({ message: `Chat messages for ${req.params.location}` });
+});
+
+// ✅ Start Server
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+});
