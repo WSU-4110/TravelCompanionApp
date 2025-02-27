@@ -91,17 +91,34 @@
         <h2>Find the Best Hotels</h2>
 
         <!-- Hotel listings -->
-        <div class="hotel-list">
-            <div class="hotel-item">🏨 Hotel 1 - <strong>Cheapest in the area</strong></div>
-            <div class="hotel-item">🏨 Hotel 2 - <strong>Highest-rated</strong></div>
-            <div class="hotel-item">🏨 Hotel 3 - <strong>Luxury Stay</strong></div>
-        </div>
+        <div class="hotel-list" id="hotelList"></div>
 
         <!-- Back to homepage button -->
         <div class="back-btn">
             <a href="homepage.html">Back to Homepage</a>
         </div>
     </div>
+
+    <script>
+        function loadHotels() {
+            let hotels = JSON.parse(localStorage.getItem("hotel")) || [];
+            let hotelList = document.getElementById("hotelList");
+
+            if (hotels.length === 0) {
+                hotelList.innerHTML = "<p>No hotels available.</p>";
+                return;
+            }
+
+            hotelList.innerHTML = hotels.map(hotel => `
+                <div class="hotel-item">
+                    🏨 <strong>${hotel.name}</strong> - $${hotel.price}
+                    <p>📞 Contact: ${hotel.contact}</p>
+                </div>
+            `).join("");
+        }
+
+        window.onload = loadHotels;
+    </script>
 
 </body>
 </html>

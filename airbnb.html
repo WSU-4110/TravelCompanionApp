@@ -91,17 +91,34 @@
         <h2>Find the Best Airbnb Listings</h2>
 
         <!-- Airbnb listings -->
-        <div class="airbnb-list">
-            <div class="airbnb-item">🏡 Airbnb 1 - <strong>Cheapest in the area</strong></div>
-            <div class="airbnb-item">🏡 Airbnb 2 - <strong>Highest-rated</strong></div>
-            <div class="airbnb-item">🏡 Airbnb 3 - <strong>Luxury Stay</strong></div>
-        </div>
+        <div class="airbnb-list" id="airbnbList"></div>
 
         <!-- Back to homepage button -->
         <div class="back-btn">
             <a href="homepage.html">Back to Homepage</a>
         </div>
     </div>
+
+    <script>
+        function loadAirbnbs() {
+            let airbnbs = JSON.parse(localStorage.getItem("airbnb")) || [];
+            let airbnbList = document.getElementById("airbnbList");
+
+            if (airbnbs.length === 0) {
+                airbnbList.innerHTML = "<p>No Airbnb listings available.</p>";
+                return;
+            }
+
+            airbnbList.innerHTML = airbnbs.map(airbnb => `
+                <div class="airbnb-item">
+                    🏡 <strong>${airbnb.name}</strong> - $${airbnb.price}
+                    <p>📞 Contact: ${airbnb.contact}</p>
+                </div>
+            `).join("");
+        }
+
+        window.onload = loadAirbnbs;
+    </script>
 
 </body>
 </html>

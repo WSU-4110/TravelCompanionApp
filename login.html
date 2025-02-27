@@ -156,9 +156,15 @@
             let user = users.find(user => user.email === email && user.password === password);
             
             if (user) {
-                // Save logged-in user and redirect to homepage
+                // Save logged-in user
                 localStorage.setItem("loggedInUser", JSON.stringify(user));
-                window.location.href = "homepage.html";
+
+                // Redirect to select-city.html first, then homepage.html
+                if (!localStorage.getItem("selectedCity")) {
+                    window.location.href = "select-city.html"; // If city not selected, go there first
+                } else {
+                    window.location.href = "homepage.html"; // If city exists, go to homepage
+                }
             } else {
                 alert("Invalid credentials. Please try again.");
             }
