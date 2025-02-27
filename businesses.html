@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Business - Travel Companion</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+        }
+
+        .back-btn a {
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-btn a:hover {
+            background: #003f7f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Register Your Business</h2>
+        <select id="businessType">
+            <option value="hotel">Hotel</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="airbnb">Airbnb</option>
+        </select>
+        <input type="text" id="businessName" placeholder="Business Name">
+        <input type="text" id="businessPrice" placeholder="Average Price ($)">
+        <input type="text" id="businessContact" placeholder="Contact Info">
+        <button onclick="registerBusiness()">Submit</button>
+
+        <div class="back-btn">
+            <a href="homepage.html">Back to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        function registerBusiness() {
+            let type = document.getElementById("businessType").value;
+            let name = document.getElementById("businessName").value;
+            let price = document.getElementById("businessPrice").value;
+            let contact = document.getElementById("businessContact").value;
+
+            if (!name || !price || !contact) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            let businesses = JSON.parse(localStorage.getItem(type)) || [];
+            businesses.push({ name, price, contact });
+            localStorage.setItem(type, JSON.stringify(businesses));
+
+            alert("Business registered successfully!");
+            document.getElementById("businessName").value = "";
+            document.getElementById("businessPrice").value = "";
+            document.getElementById("businessContact").value = "";
+        }
+    </script>
+
+</body>
+</html>

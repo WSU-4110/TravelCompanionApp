@@ -91,17 +91,34 @@
         <h2>Find the Best Restaurants</h2>
 
         <!-- Restaurant listings -->
-        <div class="restaurant-list">
-            <div class="restaurant-item">🍽️ Restaurant 1 - <strong>Highest-rated</strong></div>
-            <div class="restaurant-item">🍽️ Restaurant 2 - <strong>Best seafood</strong></div>
-            <div class="restaurant-item">🍽️ Restaurant 3 - <strong>Cozy atmosphere</strong></div>
-        </div>
+        <div class="restaurant-list" id="restaurantList"></div>
 
         <!-- Back to homepage button -->
         <div class="back-btn">
             <a href="homepage.html">Back to Homepage</a>
         </div>
     </div>
+
+    <script>
+        function loadRestaurants() {
+            let restaurants = JSON.parse(localStorage.getItem("restaurant")) || [];
+            let restaurantList = document.getElementById("restaurantList");
+
+            if (restaurants.length === 0) {
+                restaurantList.innerHTML = "<p>No restaurants available.</p>";
+                return;
+            }
+
+            restaurantList.innerHTML = restaurants.map(restaurant => `
+                <div class="restaurant-item">
+                    🍽️ <strong>${restaurant.name}</strong> - $${restaurant.price}
+                    <p>📞 Contact: ${restaurant.contact}</p>
+                </div>
+            `).join("");
+        }
+
+        window.onload = loadRestaurants;
+    </script>
 
 </body>
 </html>
