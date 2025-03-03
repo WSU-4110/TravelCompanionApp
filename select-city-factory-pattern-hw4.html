@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select a City - Travel Companion</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Enter Your City</h2>
+        <input type="text" id="cityInput" placeholder="Type your city here...">
+        <button onclick="saveCity()">Continue</button>
+    </div>
+
+    <script>
+        // Base City Class
+        class City {
+            constructor(name) {
+                this.name = name;
+            }
+
+            getInfo() {
+                return `Selected City: ${this.name}.`;
+            }
+        }
+
+        // Dynamic City Class
+        class DynamicCity extends City {
+            getInfo() {
+                return `You selected ${this.name}. 🌍 \n (More features can be added here!)`;
+            }
+        }
+
+        // Factory Class for Creating Cities
+        class CityFactory {
+            static createCity(name) {
+                return new DynamicCity(name);
+            }
+        }
+
+        function saveCity() {
+            let cityName = document.getElementById("cityInput").value.trim();
+
+            if (cityName === "") {
+                alert("Please enter a city before continuing.");
+                return;
+            }
+
+            let cityObject = CityFactory.createCity(cityName);
+            console.log(cityObject.getInfo()); // Debugging
+
+            // Save city object as a string in localStorage
+            localStorage.setItem("selectedCity", JSON.stringify(cityObject));
+
+            window.location.href = "homepage.html";
+        }
+    </script>
+
+</body>
+</html>
