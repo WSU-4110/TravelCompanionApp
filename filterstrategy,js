@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Companion App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Travel Companion App</h1>
+    
+    <label for="filter">Sort By:</label>
+    <select id="filter">
+        <option value="price">Price</option>
+        <option value="rating">Rating</option>
+        <option value="distance">Distance</option>
+    </select>
+    <button onclick="applyFilter()">Apply Filter</button>
+    
+    <ul id="locations"></ul>
+    
+    <script>
+        class FilterStrategy {
+            sort(locations) {
+                throw new Error("sort method must be implemented");
+            }
+        }
+
+        class SortByPrice extends FilterStrategy {
+            sort(locations) {
+                return locations.sort((a, b) => a.price - b.price);
+            }
+        }
+
+        class SortByRating extends FilterStrategy {
+            sort(locations) {
+                return locations.sort((a, b) => b.rating - a.rating);
+            }
+        }
+
+        class SortByDistance extends FilterStrategy {
+            sort(locations) {
+                return locations.sort((a, b) => a.distance - b.distance);
+            }
+        }
+
+        const locations = [
+            { name: "Hotel A", price: 120, rating: 4.5, distance: 2.0 },
+            { name: "Hotel B", price: 80, rating: 4.0, distance: 5.0 },
+            { name: "Hotel C", price: 200, rating: 5.0, distance: 1.0 }
+        ];
+
+        function displayLocations(locations) {
+            const list = document.getElementById("locations");
+            list.innerHTML = "";
+            locations.forEach(loc => {
+                const item = document.createElement("li");
+                item.textContent = `${loc.name} - $${loc.price} - ${loc.rating}★ - ${loc.distance} km`;
+                list.appendChild(item);
+            });
+        }
+
+        function applyFilter() {
+            const filterType = document.getElementById("filter").value;
+            let strategy;
+            
+            switch (filterType) {
+                case "price":
+                    strategy = new SortByPrice();
+                    break;
+                case "rating":
+                    strategy = new SortByRating();
+                    break;
+                case "distance":
+                    strategy = new SortByDistance();
+                    break;
+                default:
+                    return;
+            }
+            
+            const sortedLocations = strategy.sort([...locations]);
+            displayLocations(sortedLocations);
+        }
+
+        // Initial display
+        displayLocations(locations);
+    </script>
+</body>
+</html>
