@@ -4,69 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Attractions - Travel Companion</title>
+
     <style>
-        /* General page styling */
+        /* Background Image */
         body {
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5);
-            color: #333;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header styling */
-        .header {
-            width: 100%;
-            background: #007bff;
-            color: white;
-            padding: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-
-        /* Main content section */
-        .content {
-            margin-top: 80px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* Attractions list container */
-        .attraction-list {
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            margin-top: 20px;
+            position: relative;
         }
 
-        /* Individual attraction item styling */
-        .attraction-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 500px;
-            text-align: left;
+        /* Dark Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
         }
 
-        /* Back button styling */
-        .back-btn {
-            margin-top: 20px;
+        /* Page Header */
+        .page-header {
+            width: 100%;
+            background: rgba(30, 58, 138, 0.9);
+            color: white;
+            padding: 20px;
             text-align: center;
+            font-size: 24px;
+            font-weight: bold;
         }
 
-        /* Back button styling */
-        .back-btn a {
-            background: #007bff;
+        /* Page Content */
+        .page-content {
+            text-align: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        /* List Container */
+        .list-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        /* Individual Attraction Item */
+        .list-item {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: #1E3A8A;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
@@ -75,53 +96,62 @@
             transition: background 0.3s;
         }
 
-        /* Back button hover effect */
-        .back-btn a:hover {
-            background: #003f7f;
+        .btn:hover {
+            background: #152C5B;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header section -->
-    <div class="header">Local Attractions</div>
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Local Attractions</h1>
+    </header>
 
-    <!-- Main content section -->
-    <div class="content">
-        <h2>Discover Amazing Places</h2>
+    <!-- Main Content Section -->
+    <section class="page-content">
+        <h2>Discover the Best Local Attractions</h2>
 
-        <!-- Local attractions listings -->
-        <div class="attraction-list">
-            <div class="attraction-item">🏞️ Attraction 1 - <strong>Highest-rated</strong></div>
-            <div class="attraction-item">🏛️ Attraction 2 - <strong>Historical landmark</strong></div>
-            <div class="attraction-item">🎡 Attraction 3 - <strong>Popular for families</strong></div>
+        <!-- Attractions List -->
+        <div class="list-container" id="attractionsList"></div>
+
+        <!-- Buttons for navigation -->
+        <div class="btn-container">
+            <a href="HomePage.html" class="btn">Back to Homepage</a>
         </div>
-
-        <!-- Back to homepage button -->
-        <div class="back-btn">
-            <a href="homepage.html">Back to Homepage</a>
-        </div>
-    </div>
+    </section>
 
     <script>
         function loadAttractions() {
-            let attractions = JSON.parse(localStorage.getItem("attractions")) || [];
             let attractionsList = document.getElementById("attractionsList");
+            attractionsList.innerHTML = "";
 
-            if (attractions.length === 0) {
-                attractionsList.innerHTML = "<p>No attractions available.</p>";
-                return;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                
+                if (key.startsWith("attraction_")) {
+                    const attraction = JSON.parse(localStorage.getItem(key));
+
+                    const attractionItem = document.createElement("div");
+                    attractionItem.classList.add("list-item");
+
+                    attractionItem.innerHTML = `
+                        📍 <strong>${attraction.name}</strong>
+                        <p><strong>City:</strong> ${attraction.city}</p>
+                        <p><strong>Description:</strong> ${attraction.description}</p>
+                    `;
+
+                    attractionsList.appendChild(attractionItem);
+                }
             }
 
-            attractionsList.innerHTML = attractions.map(attraction => `
-                <div class="attraction-item">
-                    📍 <strong>${attraction.name}</strong>
-                    <p>📖 ${attraction.description}</p>
-                </div>
-            `).join("");
+            if (attractionsList.innerHTML === "") {
+                attractionsList.innerHTML = "<p>No attractions available.</p>";
+            }
         }
 
         window.onload = loadAttractions;
     </script>
+
 </body>
 </html>

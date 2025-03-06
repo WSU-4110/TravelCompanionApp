@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register Your Airbnb - Travel Companion</title>
+    <title>Register Your Store - Travel Companion</title>
 
     <style>
         /* Background Image */
@@ -52,7 +52,7 @@
             text-align: center;
         }
 
-        /* Add Rental Property Button */
+        /* Add Store Item Button */
         .add-item-btn {
             background-color: #28a745;
             color: white;
@@ -130,28 +130,25 @@
 
     <div class="container">
         <header class="page-header">
-            <h1>Register Your Airbnb</h1>
+            <h1>Register Your Store</h1>
         </header>
 
-        <form id="airbnbForm" onsubmit="storeAirbnb(); return false;">
-            <input type="text" id="airbnbName" placeholder="Airbnb Name" required>
-            <textarea id="description" placeholder="Airbnb Description" required></textarea>
+        <form id="storeForm" onsubmit="storeStore(); return false;">
+            <input type="text" id="storeName" placeholder="Store Name" required>
+            <textarea id="description" placeholder="Store Description" required></textarea>
             <input type="text" id="city" placeholder="City" required>
             <input type="text" id="address" placeholder="Address" required>
 
-            <h4>Rental Listings</h4>
-            <div id="listingsContainer">
+            <h4>Store Products</h4>
+            <div id="productsContainer">
                 <div>
-                    <input type="text" placeholder="Listing Name">
-                    <input type="number" placeholder="Available Units">
-                    <input type="number" placeholder="Price per Night ($)">
-                    <input type="number" placeholder="Number of Beds">
-                    <input type="number" placeholder="Number of Bathrooms">
+                    <input type="text" placeholder="Product Name">
+                    <input type="number" placeholder="Price ($)">
                 </div>
             </div>
-            <button type="button" class="add-item-btn" onclick="addListing()">+ Add Listing</button>
+            <button type="button" class="add-item-btn" onclick="addProduct()">+ Add Product</button>
 
-            <h4>Business Hours (Check-in / Check-out)</h4>
+            <h4>Business Hours</h4>
             <div class="times-grid">
                 <label>Monday: <input type="time"> to <input type="time"></label>
                 <label>Tuesday: <input type="time"> to <input type="time"></label>
@@ -162,7 +159,7 @@
                 <label>Sunday: <input type="time"> to <input type="time"></label>
             </div>
 
-            <button type="submit" class="btn">Submit Airbnb</button>
+            <button type="submit" class="btn">Submit Store</button>
         </form>
 
         <!-- Back to Homepage Button -->
@@ -172,44 +169,35 @@
     </div>
 
     <script>
-        function addListing() {
-            const container = document.getElementById('listingsContainer');
+        function addProduct() {
+            const container = document.getElementById('productsContainer');
             const itemDiv = document.createElement('div');
             itemDiv.innerHTML = `
-                <input type="text" placeholder="Listing Name">
-                <input type="number" placeholder="Available Units">
-                <input type="number" placeholder="Price per Night ($)">
-                <input type="number" placeholder="Number of Beds">
-                <input type="number" placeholder="Number of Bathrooms">
+                <input type="text" placeholder="Product Name">
+                <input type="number" placeholder="Price ($)">
             `;
             container.appendChild(itemDiv);
         }
 
-        function storeAirbnb() {
-            const airbnb = {
-                name: document.getElementById('airbnbName').value,
+        function storeStore() {
+            const store = {
+                name: document.getElementById('storeName').value,
                 description: document.getElementById('description').value,
                 city: document.getElementById('city').value,
                 address: document.getElementById('address').value,
-                listings: [],
+                products: [],
                 hours: {}
             };
 
-            const listingDivs = document.querySelectorAll('#listingsContainer div');
-            listingDivs.forEach(div => {
+            const productDivs = document.querySelectorAll('#productsContainer div');
+            productDivs.forEach(div => {
                 const name = div.children[0].value;
-                const availableUnits = div.children[1].value;
-                const price = div.children[2].value;
-                const beds = div.children[3].value;
-                const bathrooms = div.children[4].value;
+                const price = div.children[1].value;
 
                 if (name && price) {
-                    airbnb.listings.push({
+                    store.products.push({
                         name: name,
-                        availableUnits: parseInt(availableUnits) || 0,
-                        price: parseFloat(price),
-                        beds: parseInt(beds) || 0,
-                        bathrooms: parseInt(bathrooms) || 0
+                        price: parseFloat(price)
                     });
                 }
             });
@@ -218,18 +206,18 @@
             const timeInputs = document.querySelectorAll('.times-grid input');
 
             for (let i = 0; i < days.length; i++) {
-                airbnb.hours[days[i]] = {
+                store.hours[days[i]] = {
                     open: timeInputs[i * 2].value,
                     close: timeInputs[i * 2 + 1].value
                 };
             }
 
-            localStorage.setItem('airbnb_' + Date.now(), JSON.stringify(airbnb));
+            localStorage.setItem('store_' + Date.now(), JSON.stringify(store));
 
-            alert('Airbnb registered successfully!');
-            document.getElementById('airbnbForm').reset();
-            document.getElementById('listingsContainer').innerHTML = '';
-            window.location.href = "airbnb.html"; // Redirects to Airbnb listings
+            alert('Store registered successfully!');
+            document.getElementById('storeForm').reset();
+            document.getElementById('productsContainer').innerHTML = '';
+            window.location.href = "stores.html"; // Redirect to stores page
         }
     </script>
 

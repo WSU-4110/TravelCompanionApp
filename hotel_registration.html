@@ -44,6 +44,19 @@
         .add-item-btn {
             background-color: #28a745;
         }
+
+        .times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .times-grid input {
+            width: 100%;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +77,17 @@
             </div>
         </div>
         <button type="button" class="add-item-btn" onclick="addRoom()">+ Add Room</button>
+
+        <h4>Operating Hours (Check-in / Check-out)</h4>
+        <div class="times-grid">
+            <label>Mon: <input type="time"> to <input type="time"></label>
+            <label>Tue: <input type="time"> to <input type="time"></label>
+            <label>Wed: <input type="time"> to <input type="time"></label>
+            <label>Thu: <input type="time"> to <input type="time"></label>
+            <label>Fri: <input type="time"> to <input type="time"></label>
+            <label>Sat: <input type="time"> to <input type="time"></label>
+            <label>Sun: <input type="time"> to <input type="time"></label>
+        </div>
 
         <button type="submit">Submit Hotel</button>
     </form>
@@ -86,7 +110,8 @@ function storeHotel() {
         description: document.getElementById('description').value,
         city: document.getElementById('city').value,
         address: document.getElementById('address').value,
-        rooms: []
+        rooms: [],
+        hours: {}
     };
 
     const roomDivs = document.querySelectorAll('#roomContainer div');
@@ -98,6 +123,16 @@ function storeHotel() {
             hotel.rooms.push({ type, price: parseFloat(price) });
         }
     });
+
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const timeInputs = document.querySelectorAll('.times-grid input');
+
+    for (let i = 0; i < days.length; i++) {
+        hotel.hours[days[i]] = {
+            open: timeInputs[i * 2].value,
+            close: timeInputs[i * 2 + 1].value
+        };
+    }
 
     // Store hotel in localStorage with a unique key
     localStorage.setItem('hotel_' + Date.now(), JSON.stringify(hotel));
