@@ -78,6 +78,27 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
 
+        /* Star Rating */
+        .stars {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+            margin: 5px 0;
+        }
+
+        .stars span.selected {
+            color: gold;
+        }
+
+        /* Check In */
+        .check-in {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
         /* Buttons */
         .btn-container {
             display: flex;
@@ -131,20 +152,50 @@
                 
                 if (key.startsWith("hotel_")) {
                     const hotel = JSON.parse(localStorage.getItem(key));
+                    const savedRating = localStorage.getItem('rating_' + key) || 0;
+                    const isCheckedIn = localStorage.getItem('checkedin_' + key) === 'true';
 
                     const hotelItem = document.createElement("div");
                     hotelItem.classList.add("list-item");
 
-                    hotelItem.innerHTML = `
+                    let content = `
                         🏨 <strong>${hotel.name}</strong>
                         <p><strong>City:</strong> ${hotel.city}</p>
                         <p><strong>Address:</strong> ${hotel.address}</p>
                         <p><strong>Description:</strong> ${hotel.description}</p>
+                        <div class="stars" data-key="${key}">
                     `;
+                    for (let star = 1; star <= 5; star++) {
+                        content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
+                    }
+                    content += '</div>';
+                    content += `
+                        <div class="check-in">
+                            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? 'checked' : ''}>
+                            <label for="checkin_${key}">Check In</label>
+                        </div>
+                    `;
+                    
+                    hotelItem.innerHTML = content;
+                    
+                    const starContainer = hotelItem.querySelector('.stars');
+                    starContainer.addEventListener('click', function(event) {
+                        if (event.target.tagName === 'SPAN') {
+                            const starValue = parseInt(event.target.getAttribute('data-star'));
+                            localStorage.setItem('rating_' + key, starValue);
+                            updateStarDisplay(starContainer, starValue);
+                        }
+                    });
 
                     hotelList.appendChild(hotelItem);
                 }
             }
+        }
+
+        function updateStarDisplay(starsContainer, rating) {
+            Array.from(starsContainer.children).forEach(star => {
+                star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+            });
         }
 
         window.onload = loadHotels;

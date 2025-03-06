@@ -21,7 +21,7 @@
         .overlay {
             width: 100%;
             min-height: 100vh;
-            background: rgba(0, 0, 0, 0.5); /* Dark overlay for better visibility */
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -74,14 +74,6 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Store Details */
-        .details {
-            display: none;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
-
         /* Back Button */
         .back-btn {
             text-align: center;
@@ -101,18 +93,6 @@
         .back-btn a:hover {
             background: #152C5B;
         }
-
-        /* Star Rating */
-        .stars {
-            font-size: 24px;
-            cursor: pointer;
-            color: #ccc;
-        }
-
-        .stars span.selected {
-            color: gold;
-        }
-
     </style>
 </head>
 <body>
@@ -142,92 +122,31 @@
             const container = document.getElementById('businessList');
             container.innerHTML = '';
 
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
+            let stores = JSON.parse(localStorage.getItem("stores")) || [];
 
-                if (key.startsWith('business_')) {
-                    const business = JSON.parse(localStorage.getItem(key));
+            stores.forEach((store, index) => {
+                const card = document.createElement('div');
+                card.className = 'list-item';
 
-                    const savedRating = localStorage.getItem('rating_' + key) || 0;
+                let content = `
+                    <h3>${store.name}</h3>
+                    <p><strong>City:</strong> ${store.city}</p>
+                    <p><strong>Address:</strong> ${store.address}</p>
+                    <p><strong>Description:</strong> ${store.description}</p>
+                    <h4>Products:</h4>
+                    <ul>
+                        ${store.products.map(product => `<li>${product.name} - $${product.price}</li>`).join('')}
+                    </ul>
+                    <h4>Business Hours:</h4>
+                    <ul>
+                        ${Object.keys(store.hours).map(day => `
+                            <li><strong>${day}:</strong> ${store.hours[day].open} - ${store.hours[day].close}</li>
+                        `).join('')}
+                    </ul>
+                `;
 
-                    const card = document.createElement('div');
-                    card.className = 'list-item';
-
-                    let content = '';
-                    content += '<h3>' + business.name + '</h3>';
-                    content += '<p><strong>City:</strong> ' + business.city + '</p>';
-                    content += '<p><strong>Address:</strong> ' + business.address + '</p>';
-
-                    content += '<div class="stars" data-key="' + key + '">';
-                    for (let star = 1; star <= 5; star++) {
-                        if (star <= savedRating) {
-                            content += '<span data-star="' + star + '" class="selected">&#9733;</span>';
-                        } else {
-                            content += '<span data-star="' + star + '">&#9733;</span>';
-                        }
-                    }
-                    content += '</div>';
-
-                    content += '<div class="details">';
-                    content += '<p><strong>Description:</strong> ' + business.description + '</p>';
-
-                    content += '<h4>Items for Sale:</h4><ul>';
-                    business.items.forEach(function(item) {
-                        content += '<li>' + item.name + ': $' + item.price + '</li>';
-                    });
-                    content += '</ul>';
-
-                    content += '<h4>Business Hours:</h4><ul>';
-                    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-                    days.forEach(function(day) {
-                        const hours = business.hours[day] || { open: 'Closed', close: 'Closed' };
-                        content += '<li>' + day + ': ' + hours.open + ' - ' + hours.close + '</li>';
-                    });
-                    content += '</ul>';
-
-                    content += '</div>';
-
-                    card.innerHTML = content;
-
-                    card.onclick = function(event) {
-                        const clickedElem = event.target;
-                        const clickedInsideStar = clickedElem.classList.contains('stars') || clickedElem.parentElement.classList.contains('stars');
-
-                        if (clickedInsideStar) {
-                            return;
-                        }
-
-                        const detailSec = card.querySelector('.details');
-
-                        if (detailSec.style.display === 'none') {
-                            detailSec.style.display = 'block';
-                        } else {
-                            detailSec.style.display = 'none';
-                        }
-                    };
-
-                    const starContainer = card.querySelector('.stars');
-
-                    starContainer.addEventListener('click', function(event) {
-                        const clickedElem = event.target;
-
-                        if (clickedElem.tagName === 'SPAN') {
-                            const starValue = parseInt(clickedElem.getAttribute('data-star'));
-
-                            localStorage.setItem('rating_' + key, starValue);
-
-                            updateStarDisplay(starContainer, starValue);
-                        }
-                    });
-
-                    container.appendChild(card);
-                }
-            }
-        }
-
-        function updateStarDisplay(starsContainer, rating) {
-            Array.from(starsContainer.children).forEach(star => {
-                star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+                card.innerHTML = content;
+                container.appendChild(card);
             });
         }
 

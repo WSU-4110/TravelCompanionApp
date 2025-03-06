@@ -3,127 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration - Travel Companion</title>
+    <title>Restaurants - Travel Companion</title>
     <style>
-        /* General page styling */
         body {
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5);
-            color: #333;
             margin: 0;
             padding: 0;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            position: relative;
         }
 
-        /* App title styling */
-        .title {
-            font-size: 36px;
-            font-weight: bold;
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        .page-header {
+            width: 100%;
+            background: rgba(30, 58, 138, 0.9);
             color: white;
-            background: #007bff;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .page-content {
+            text-align: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .list-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        /* Registration container styling */
-        .container {
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        /* Input field styling */
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        /* Button styling */
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
             cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .stars {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+            margin: 5px 0;
+        }
+
+        .stars span.selected {
+            color: gold;
+        }
+
+        .check-in {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: #1E3A8A;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
             font-size: 16px;
             transition: background 0.3s;
         }
 
-        /* Button hover effect */
-        button:hover {
-            background: #0056b3;
-        }
-
-        /* Link styling for login */
-        .login-link {
-            margin-top: 15px;
-            color: #007bff;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .login-link:hover {
-            text-decoration: underline;
+        .btn:hover {
+            background: #152C5B;
         }
     </style>
 </head>
 <body>
+    <header class="page-header">
+        <h1>Restaurants</h1>
+    </header>
 
-    <!-- App Title -->
-    <div class="title">Travel Companion App</div>
-
-    <!-- Registration Form Container -->
-    <div class="container">
-        <h1>Sign Up</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="register()">Sign Up</button>
-        <p>Already have an account? <a href="login.html" class="login-link">Login here</a></p>
-    </div>
+    <section class="page-content">
+        <h2>Find the Best Restaurants</h2>
+        <div class="list-container" id="restaurantList"></div>
+        <div class="btn-container">
+            <a href="HomePage.html" class="btn">Back to Homepage</a>
+        </div>
+    </section>
 
     <script>
-        // Function to handle user registration
-        function register() {
-            let username = document.getElementById("username").value;
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
+        function loadRestaurants() {
+            let restaurantList = document.getElementById("restaurantList");
+            restaurantList.innerHTML = "";
 
-            if (username && email && password) {
-                let users = JSON.parse(localStorage.getItem("users")) || [];
-
-                // Check if email is already registered
-                if (users.some(user => user.email === email)) {
-                    alert("Email already registered. Please log in.");
-                    return;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                
+                if (key.startsWith("restaurant_")) {
+                    const restaurant = JSON.parse(localStorage.getItem(key));
+                    const savedRating = localStorage.getItem('rating_' + key) || 0;
+                    const isCheckedIn = localStorage.getItem('checkedin_' + key) === 'true';
+                    
+                    const restaurantItem = document.createElement("div");
+                    restaurantItem.classList.add("list-item");
+                    
+                    let content = `
+                        🍽️ <strong>${restaurant.name}</strong>
+                        <p><strong>City:</strong> ${restaurant.city}</p>
+                        <p><strong>Address:</strong> ${restaurant.address}</p>
+                        <p><strong>Description:</strong> ${restaurant.description}</p>
+                        <div class="stars" data-key="${key}">
+                    `;
+                    for (let star = 1; star <= 5; star++) {
+                        content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
+                    }
+                    content += '</div>';
+                    content += `
+                        <div class="check-in">
+                            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? 'checked' : ''}>
+                            <label for="checkin_${key}">Check In</label>
+                        </div>
+                    `;
+                    
+                    restaurantItem.innerHTML = content;
+                    
+                    const starContainer = restaurantItem.querySelector('.stars');
+                    starContainer.addEventListener('click', function(event) {
+                        if (event.target.tagName === 'SPAN') {
+                            const starValue = parseInt(event.target.getAttribute('data-star'));
+                            localStorage.setItem('rating_' + key, starValue);
+                            updateStarDisplay(starContainer, starValue);
+                        }
+                    });
+                    
+                    restaurantList.appendChild(restaurantItem);
                 }
-
-                // Save user info to localStorage
-                users.push({ username, email, password });
-                localStorage.setItem("users", JSON.stringify(users));
-
-                alert("Account created successfully! Please log in.");
-                window.location.href = "login.html"; // Redirect to login page
-            } else {
-                alert("Please fill all fields.");
             }
         }
-    </script>
 
+        function updateStarDisplay(starsContainer, rating) {
+            Array.from(starsContainer.children).forEach(star => {
+                star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+            });
+        }
+
+        window.onload = loadRestaurants;
+    </script>
 </body>
 </html>
