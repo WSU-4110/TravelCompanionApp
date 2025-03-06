@@ -4,69 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb - Travel Companion</title>
+
     <style>
-        /* General page styling */
+        /* Background Image with Overlay */
         body {
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5);
-            color: #333;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header styling */
-        .header {
-            width: 100%;
-            background: #007bff;
-            color: white;
-            padding: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-
-        /* Main content section */
-        .content {
-            margin-top: 80px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* Airbnb list container */
-        .airbnb-list {
+            color: #fff; /* White text for better contrast */
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            margin-top: 20px;
+            position: relative;
         }
 
-        /* Individual Airbnb item styling */
-        .airbnb-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 500px;
-            text-align: left;
+        /* Dark Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Dark overlay for readability */
+            z-index: -1;
         }
 
-        /* Back button styling */
-        .back-btn {
-            margin-top: 20px;
+        /* Page Header */
+        .page-header {
+            width: 100%;
+            background: rgba(30, 58, 138, 0.9); /* Semi-transparent dark blue */
+            color: white;
+            padding: 20px;
             text-align: center;
+            font-size: 24px;
+            font-weight: bold;
         }
 
-        /* Back button styling */
-        .back-btn a {
-            background: #007bff;
+        /* Page Content */
+        .page-content {
+            text-align: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        /* List Container */
+        .list-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        /* Individual Airbnb Item */
+        .list-item {
+            background: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Back Button */
+        .back-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-btn .btn {
+            background: #1E3A8A;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
@@ -75,46 +94,71 @@
             transition: background 0.3s;
         }
 
-        /* Back button hover effect */
-        .back-btn a:hover {
-            background: #003f7f;
+        .back-btn .btn:hover {
+            background: #152C5B;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header section -->
-    <div class="header">Airbnb</div>
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Airbnb Listings</h1>
+    </header>
 
-    <!-- Main content section -->
-    <div class="content">
-        <h2>Find the Best Airbnb Listings</h2>
+    <!-- Main Content Section -->
+    <section class="page-content">
+        <h2>Find the Best Airbnb Stays</h2>
 
-        <!-- Airbnb listings -->
-        <div class="airbnb-list" id="airbnbList"></div>
+        <!-- Airbnb List -->
+        <div class="list-container" id="airbnbList"></div>
 
-        <!-- Back to homepage button -->
+        <!-- Back to Homepage Button -->
         <div class="back-btn">
-            <a href="homepage.html">Back to Homepage</a>
+            <a href="HomePage.html" class="btn">Back to Homepage</a>
         </div>
-    </div>
+    </section>
 
     <script>
         function loadAirbnbs() {
-            let airbnbs = JSON.parse(localStorage.getItem("airbnb")) || [];
             let airbnbList = document.getElementById("airbnbList");
+            airbnbList.innerHTML = "";
 
-            if (airbnbs.length === 0) {
-                airbnbList.innerHTML = "<p>No Airbnb listings available.</p>";
-                return;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                
+                if (key.startsWith("airbnb_")) {
+                    const airbnb = JSON.parse(localStorage.getItem(key));
+
+                    const airbnbItem = document.createElement("div");
+                    airbnbItem.classList.add("list-item");
+
+                    let content = `
+                        🏡 <strong>${airbnb.name}</strong>
+                        <p><strong>City:</strong> ${airbnb.city}</p>
+                        <p><strong>Address:</strong> ${airbnb.address}</p>
+                        <p><strong>Description:</strong> ${airbnb.description}</p>
+                        <h4>Available Rentals:</h4>
+                        <ul>
+                    `;
+
+                    airbnb.listings.forEach(listing => {
+                        content += `
+                            <li>${listing.name}: $${listing.price} per night, 
+                                ${listing.beds} Beds, ${listing.bathrooms} Bathrooms</li>
+                        `;
+                    });
+
+                    content += "</ul>";
+
+                    airbnbItem.innerHTML = content;
+                    airbnbList.appendChild(airbnbItem);
+                }
             }
 
-            airbnbList.innerHTML = airbnbs.map(airbnb => `
-                <div class="airbnb-item">
-                    🏡 <strong>${airbnb.name}</strong> - $${airbnb.price}
-                    <p>📞 Contact: ${airbnb.contact}</p>
-                </div>
-            `).join("");
+            if (airbnbList.innerHTML === "") {
+                airbnbList.innerHTML = "<p>No Airbnb listings available.</p>";
+            }
         }
 
         window.onload = loadAirbnbs;

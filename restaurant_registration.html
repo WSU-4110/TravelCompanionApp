@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Your Restaurant - Travel Companion</title>
+    <style>
+        /* Background Image */
+        body {
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .add-item-btn {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Register Your Restaurant</h2>
+    <form id="restaurantForm" onsubmit="storeRestaurant(); return false;">
+        <input type="text" id="restaurantName" placeholder="Restaurant Name" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <input type="text" id="city" placeholder="City" required>
+        <input type="text" id="address" placeholder="Address" required>
+
+        <h4>Menu Items</h4>
+        <div id="menuContainer">
+            <div>
+                <input type="text" placeholder="Dish Name">
+                <input type="number" placeholder="Price ($)">
+            </div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addMenuItem()">+ Add Menu Item</button>
+
+        <button type="submit">Submit Restaurant</button>
+    </form>
+</div>
+
+<script>
+function addMenuItem() {
+    const container = document.getElementById('menuContainer');
+    const itemDiv = document.createElement('div');
+    itemDiv.innerHTML = `
+        <input type="text" placeholder="Dish Name">
+        <input type="number" placeholder="Price ($)">
+    `;
+    container.appendChild(itemDiv);
+}
+
+function storeRestaurant() {
+    const restaurant = {
+        name: document.getElementById('restaurantName').value,
+        description: document.getElementById('description').value,
+        city: document.getElementById('city').value,
+        address: document.getElementById('address').value,
+        menu: []
+    };
+
+    const menuDivs = document.querySelectorAll('#menuContainer div');
+    menuDivs.forEach(div => {
+        const dishName = div.children[0].value;
+        const price = div.children[1].value;
+
+        if (dishName && price) {
+            restaurant.menu.push({ name: dishName, price: parseFloat(price) });
+        }
+    });
+
+    // Store restaurant in localStorage with a unique key
+    localStorage.setItem('restaurant_' + Date.now(), JSON.stringify(restaurant));
+
+    alert('Restaurant registered successfully!');
+    document.getElementById('restaurantForm').reset();
+    document.getElementById('menuContainer').innerHTML = ''; // Clear menu items
+    window.location.href = "restaurants.html"; // Redirect to restaurant page
+}
+</script>
+
+</body>
+</html>

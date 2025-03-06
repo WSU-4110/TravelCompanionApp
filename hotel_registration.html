@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Your Hotel - Travel Companion</title>
+    <style>
+        /* Background Image */
+        body {
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .add-item-btn {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Register Your Hotel</h2>
+    <form id="hotelForm" onsubmit="storeHotel(); return false;">
+        <input type="text" id="hotelName" placeholder="Hotel Name" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <input type="text" id="city" placeholder="City" required>
+        <input type="text" id="address" placeholder="Address" required>
+
+        <h4>Rooms & Pricing</h4>
+        <div id="roomContainer">
+            <div>
+                <input type="text" placeholder="Room Type">
+                <input type="number" placeholder="Price per Night">
+            </div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addRoom()">+ Add Room</button>
+
+        <button type="submit">Submit Hotel</button>
+    </form>
+</div>
+
+<script>
+function addRoom() {
+    const container = document.getElementById('roomContainer');
+    const roomDiv = document.createElement('div');
+    roomDiv.innerHTML = `
+        <input type="text" placeholder="Room Type">
+        <input type="number" placeholder="Price per Night">
+    `;
+    container.appendChild(roomDiv);
+}
+
+function storeHotel() {
+    const hotel = {
+        name: document.getElementById('hotelName').value,
+        description: document.getElementById('description').value,
+        city: document.getElementById('city').value,
+        address: document.getElementById('address').value,
+        rooms: []
+    };
+
+    const roomDivs = document.querySelectorAll('#roomContainer div');
+    roomDivs.forEach(div => {
+        const type = div.children[0].value;
+        const price = div.children[1].value;
+
+        if (type && price) {
+            hotel.rooms.push({ type, price: parseFloat(price) });
+        }
+    });
+
+    // Store hotel in localStorage with a unique key
+    localStorage.setItem('hotel_' + Date.now(), JSON.stringify(hotel));
+
+    alert('Hotel registered successfully!');
+    document.getElementById('hotelForm').reset();
+    document.getElementById('roomContainer').innerHTML = ''; // Clear rooms
+    window.location.href = "hotels.html"; // Redirect to hotels page
+}
+</script>
+
+</body>
+</html>
