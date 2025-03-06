@@ -103,5 +103,27 @@
         </div>
     </div>
 
+    <script>
+        function loadFoodSpots() {
+            let foodSpots = JSON.parse(localStorage.getItem("foodSpots")) || [];
+            let foodList = document.getElementById("foodList");
+
+            if (foodSpots.length === 0) {
+                foodList.innerHTML = "<p>No food spots available.</p>";
+                return;
+            }
+
+            foodList.innerHTML = foodSpots.map(food => `
+                <div class="food-item">
+                    🍽️ <strong>${food.name}</strong>
+                    <p>📍 Location: ${food.location}</p>
+                    <p>📞 Contact: ${food.contact}</p>
+                </div>
+            `).join("");
+        }
+
+        window.onload = loadFoodSpots;
+    </script>
+
 </body>
 </html>

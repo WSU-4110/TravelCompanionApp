@@ -103,5 +103,25 @@
         </div>
     </div>
 
+    <script>
+        function loadAttractions() {
+            let attractions = JSON.parse(localStorage.getItem("attractions")) || [];
+            let attractionsList = document.getElementById("attractionsList");
+
+            if (attractions.length === 0) {
+                attractionsList.innerHTML = "<p>No attractions available.</p>";
+                return;
+            }
+
+            attractionsList.innerHTML = attractions.map(attraction => `
+                <div class="attraction-item">
+                    📍 <strong>${attraction.name}</strong>
+                    <p>📖 ${attraction.description}</p>
+                </div>
+            `).join("");
+        }
+
+        window.onload = loadAttractions;
+    </script>
 </body>
 </html>
