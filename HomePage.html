@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homepage - Travel Companion</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">
+    <span class="username" id="usernameDisplay"></span>
+    <span class="city-display" id="cityDisplay">🌍 </span>
+    <a href="#" class="change-city" onclick="changeCity()">Change City</a>
+    <span>Homepage</span>
+    <a href="businesses.html" class="business-link">For Businesses</a>
+  </div>
+  <div class="nav">
+    <a href="hotels.html">Hotels</a>
+    <a href="airbnb.html">Airbnb</a>
+    <a href="weather.html">Weather</a>
+    <a href="restaurants.html">Restaurants</a>
+    <a href="attractions.html">Attractions</a>
+    <a href="foodspots.html">Food Spots</a>
+    <a href="crime-news.html">Crime/News</a>
+  </div>
+  <div style="text-align: center;">
+    <button class="excel-load-btn" onclick="loadHomeExcelData()">Load Excel Data (Demo)</button>
+  </div>
+  <div id="chatContainer">
+    <h2>Chat Box</h2>
+    <div id="chatMessages"></div>
+    <div style="display: flex;">
+      <input type="text" id="chatInput" placeholder="Enter your message..." />
+      <button id="chatSendBtn" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+  <div class="logout-container">
+    <button onclick="logout()">Logout</button>
+  </div>
+  <div class="footer">&copy; 2025 Travel Companion App. All Rights Reserved.</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script src="chatFunctions.js"></script>
+  <script>
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      localStorage.removeItem("selectedCity");
+      window.location.href = "login.html";
+    }
+    function changeCity() {
+      localStorage.removeItem("selectedCity");
+      window.location.href = "select-city.html";
+    }
+    window.onload = function () {
+      let user = JSON.parse(localStorage.getItem("loggedInUser"));
+      let selectedCity = localStorage.getItem("selectedCity");
+      if (!user) { window.location.href = "login.html"; }
+      else { document.getElementById("usernameDisplay").innerText = user.username; }
+      if (!selectedCity) { window.location.href = "select-city.html"; }
+      else { document.getElementById("cityDisplay").innerText = `🌍 ${selectedCity}`; }
+      loadChatMessages();
+    };
+    function loadHomeExcelData() {
+      loadExcelData(function(workbook) {
+        let config = JSON.parse(localStorage.getItem("excelSheetConfig")) || {};
+        let sheetName = config["Index"] || "Index";
+        let sheet = workbook.Sheets[sheetName];
+        if (!sheet) { alert("No '" + sheetName + "' sheet found."); return; }
+        let jsonData = XLSX.utils.sheet_to_json(sheet);
+        console.log("Index sheet data:", jsonData);
+        alert("Index data loaded (check console for details).");
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotels - Travel Companion</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">Hotels</div>
+  <div class="content">
+    <h2>Find the Best Hotels</h2>
+    <div style="margin: 20px;">
+      <button onclick="loadHotelsFromExcel()">Load from Excel (Demo)</button>
+    </div>
+    <div class="hotel-list" id="hotelList"></div>
+    <div class="back-btn"><a href="homepage.html">Back to Homepage</a></div>
+  </div>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script>
+    function loadHotels() {
+      let hotels = JSON.parse(localStorage.getItem("hotel")) || [];
+      let hotelList = document.getElementById("hotelList");
+      if (hotels.length === 0) { hotelList.innerHTML = "<p>No hotels available.</p>"; return; }
+      hotelList.innerHTML = hotels.map(hotel => `
+        <div class="hotel-item">
+          🏨 <strong>${hotel.Name}</strong> - $${hotel.Price}
+          <p>📞 Contact: ${hotel.Contact}</p>
+        </div>
+      `).join("");
+    }
+    window.onload = loadHotels;
+  </script>
+</body>
+</html>

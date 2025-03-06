@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather - Travel Companion</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">Weather</div>
+  <div class="content">
+    <h2>Current Weather and Forecast</h2>
+    <div class="weather-info" id="weatherInfo">
+      <p>🌤️ City: <strong id="weatherCity">Your Location</strong></p>
+      <p>🌡️ Temperature: <strong id="weatherTemp">25°C</strong></p>
+      <p>🌬️ Wind Speed: <strong id="weatherWind">10 km/h</strong></p>
+      <p>🌧️ Forecast: <strong id="weatherDesc">Sunny</strong></p>
+    </div>
+    <div id="forecastContainer" class="weather-info">
+      <h3>Upcoming Forecast</h3>
+      <div class="forecast-list" id="forecastList"></div>
+    </div>
+    <div>
+      <button onclick="fetchWeatherData()">Get 5-Day Forecast</button>
+    </div>
+    <div class="back-btn"><a href="homepage.html">Back to Homepage</a></div>
+  </div>
+  <script src="weatherFunctions.js"></script>
+</body>
+</html>

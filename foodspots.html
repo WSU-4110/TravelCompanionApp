@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Spots - Travel Companion</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">Food Spots</div>
+  <div class="content">
+    <h2>Explore the Best Food Spots</h2>
+    <div style="margin: 20px;">
+      <button onclick="loadFoodspotsFromExcel()">Load from Excel (Demo)</button>
+    </div>
+    <div class="food-list" id="foodList"></div>
+    <div class="back-btn"><a href="homepage.html">Back to Homepage</a></div>
+  </div>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script>
+    function loadFoodspots() {
+      let container = document.getElementById("foodList");
+      let existing = JSON.parse(localStorage.getItem("foodspots")) || [];
+      if (existing.length === 0) { container.innerHTML = "<p>No food spots available.</p>"; return; }
+      container.innerHTML = "";
+      existing.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "food-item";
+        div.textContent = item.Info;
+        container.appendChild(div);
+      });
+    }
+    window.onload = loadFoodspots;
+  </script>
+</body>
+</html>

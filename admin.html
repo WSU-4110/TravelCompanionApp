@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Manage Excel Data</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Admin Panel - Manage Excel Data</h1>
+  </header>
+  <main>
+    <!-- Load Excel File -->
+    <section id="loadSection">
+      <h2>Load Excel File</h2>
+      <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display:none;">
+      <button id="loadExcelBtn">Load Excel File</button>
+    </section>
+    <!-- View Data -->
+    <section id="viewSection">
+      <h2>View Loaded Data</h2>
+      <label for="sheetSelect">Select Sheet:</label>
+      <select id="sheetSelect"></select>
+      <div id="dataDisplay"></div>
+    </section>
+    <!-- Add New Record -->
+    <section id="addRecordSection">
+      <h2>Add New Record</h2>
+      <label for="addSheetSelect">Select Sheet:</label>
+      <select id="addSheetSelect"></select><br>
+      <label for="recordInput">Enter Record (JSON format):</label><br>
+      <textarea id="recordInput" rows="4" cols="50" placeholder='{"Name": "New Hotel", "Price": 200, "Contact": "555-1234", "City": "Detroit", "Rating": 4.5}'></textarea><br>
+      <button id="addRecordBtn">Add Record</button>
+    </section>
+    <!-- Excel Sheet Mapping -->
+    <section id="configSection">
+      <h2>Set Excel Sheet Mapping</h2>
+      <div id="excelConfigDiv"></div>
+      <button id="saveConfigBtn">Save Configuration</button>
+    </section>
+    <!-- Save Data -->
+    <section id="saveSection">
+      <h2>Save Data to Excel</h2>
+      <button id="saveExcelBtn">Save to Excel File</button>
+    </section>
+  </main>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script src="adminFunctions.js"></script>
+</body>
+</html>

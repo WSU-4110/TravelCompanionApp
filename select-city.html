@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select a City - Travel Companion</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Enter Your City</h2>
+    <input type="text" id="cityInput" placeholder="Type your city here..." />
+    <button onclick="saveCity()">Continue</button>
+  </div>
+  <script>
+    function saveCity() {
+      let city = document.getElementById("cityInput").value.trim();
+      if (city === "") { alert("Please enter a city."); return; }
+      localStorage.setItem("selectedCity", city);
+      window.location.href = "homepage.html";
+    }
+  </script>
+</body>
+</html>

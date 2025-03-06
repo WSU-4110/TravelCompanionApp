@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurants - Travel Companion</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">Restaurants</div>
+  <div class="content">
+    <h2>Find the Best Restaurants</h2>
+    <div style="margin: 20px;">
+      <button onclick="loadRestaurantsFromExcel()">Load from Excel (Demo)</button>
+    </div>
+    <div class="restaurant-list" id="restaurantList"></div>
+    <div class="back-btn"><a href="homepage.html">Back to Homepage</a></div>
+  </div>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script>
+    function loadRestaurants() {
+      let restaurants = JSON.parse(localStorage.getItem("restaurant")) || [];
+      let restaurantList = document.getElementById("restaurantList");
+      if (restaurants.length === 0) { restaurantList.innerHTML = "<p>No restaurants available.</p>"; return; }
+      restaurantList.innerHTML = restaurants.map(restaurant => `
+        <div class="restaurant-item">
+          🍽️ <strong>${restaurant.Name}</strong> - $${restaurant.Price}
+          <p>📞 Contact: ${restaurant.Contact}</p>
+        </div>
+      `).join("");
+    }
+    window.onload = loadRestaurants;
+  </script>
+</body>
+</html>

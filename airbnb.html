@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airbnb - Travel Companion</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">Airbnb</div>
+  <div class="content">
+    <h2>Find the Best Airbnb Listings</h2>
+    <div style="margin: 20px;">
+      <button onclick="loadAirbnbFromExcel()">Load from Excel (Demo)</button>
+    </div>
+    <div class="airbnb-list" id="airbnbList"></div>
+    <div class="back-btn"><a href="homepage.html">Back to Homepage</a></div>
+  </div>
+  <script src="common.js"></script>
+  <script src="excelFunctions.js"></script>
+  <script>
+    function loadAirbnbs() {
+      let airbnbs = JSON.parse(localStorage.getItem("airbnb")) || [];
+      let airbnbList = document.getElementById("airbnbList");
+      if (airbnbs.length === 0) { airbnbList.innerHTML = "<p>No Airbnb listings available.</p>"; return; }
+      airbnbList.innerHTML = airbnbs.map(airbnb => `
+        <div class="airbnb-item">
+          🏡 <strong>${airbnb.Name}</strong> - $${airbnb.Price}
+          <p>📞 Contact: ${airbnb.Contact}</p>
+        </div>
+      `).join("");
+    }
+    window.onload = loadAirbnbs;
+  </script>
+</body>
+</html>
