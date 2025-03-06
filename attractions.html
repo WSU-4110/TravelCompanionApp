@@ -91,11 +91,7 @@
         <h2>Discover Amazing Places</h2>
 
         <!-- Local attractions listings -->
-        <div class="attraction-list">
-            <div class="attraction-item">🏞️ Attraction 1 - <strong>Highest-rated</strong></div>
-            <div class="attraction-item">🏛️ Attraction 2 - <strong>Historical landmark</strong></div>
-            <div class="attraction-item">🎡 Attraction 3 - <strong>Popular for families</strong></div>
-        </div>
+        <div class="attraction-list" id="attractionList"></div>
 
         <!-- Back to homepage button -->
         <div class="back-btn">
@@ -106,14 +102,14 @@
     <script>
         function loadAttractions() {
             let attractions = JSON.parse(localStorage.getItem("attractions")) || [];
-            let attractionsList = document.getElementById("attractionsList");
+            let attractionList = document.getElementById("attractionList");
 
             if (attractions.length === 0) {
-                attractionsList.innerHTML = "<p>No attractions available.</p>";
+                attractionList.innerHTML = "<p>No attractions available.</p>";
                 return;
             }
 
-            attractionsList.innerHTML = attractions.map(attraction => `
+            attractionList.innerHTML = attractions.map(attraction => `
                 <div class="attraction-item">
                     📍 <strong>${attraction.name}</strong>
                     <p>📖 ${attraction.description}</p>
