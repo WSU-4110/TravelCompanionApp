@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stores - Travel Companion</title>
+
+    <style>
+        /* Background Image */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Overlay for readability */
+        .overlay {
+            width: 100%;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay for better visibility */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Page Header */
+        .page-header {
+            width: 100%;
+            background: #1E3A8A;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Page Content */
+        .page-content {
+            text-align: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        /* List Container */
+        .list-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        /* Individual Store Item */
+        .list-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Store Details */
+        .details {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Back Button */
+        .back-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-btn a {
+            background: #1E3A8A;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-btn a:hover {
+            background: #152C5B;
+        }
+
+        /* Star Rating */
+        .stars {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+        }
+
+        .stars span.selected {
+            color: gold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1>Stores</h1>
+        </header>
+
+        <!-- Main Content Section -->
+        <section class="page-content">
+            <h2>Find the Best Local Stores</h2>
+
+            <!-- Store List -->
+            <div class="list-container" id="businessList"></div>
+
+            <!-- Back to Homepage Button -->
+            <div class="back-btn">
+                <a href="HomePage.html" class="btn">Back to Homepage</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function displayBusinesses() {
+            const container = document.getElementById('businessList');
+            container.innerHTML = '';
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+
+                if (key.startsWith('business_')) {
+                    const business = JSON.parse(localStorage.getItem(key));
+
+                    const savedRating = localStorage.getItem('rating_' + key) || 0;
+
+                    const card = document.createElement('div');
+                    card.className = 'list-item';
+
+                    let content = '';
+                    content += '<h3>' + business.name + '</h3>';
+                    content += '<p><strong>City:</strong> ' + business.city + '</p>';
+                    content += '<p><strong>Address:</strong> ' + business.address + '</p>';
+
+                    content += '<div class="stars" data-key="' + key + '">';
+                    for (let star = 1; star <= 5; star++) {
+                        if (star <= savedRating) {
+                            content += '<span data-star="' + star + '" class="selected">&#9733;</span>';
+                        } else {
+                            content += '<span data-star="' + star + '">&#9733;</span>';
+                        }
+                    }
+                    content += '</div>';
+
+                    content += '<div class="details">';
+                    content += '<p><strong>Description:</strong> ' + business.description + '</p>';
+
+                    content += '<h4>Items for Sale:</h4><ul>';
+                    business.items.forEach(function(item) {
+                        content += '<li>' + item.name + ': $' + item.price + '</li>';
+                    });
+                    content += '</ul>';
+
+                    content += '<h4>Business Hours:</h4><ul>';
+                    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                    days.forEach(function(day) {
+                        const hours = business.hours[day] || { open: 'Closed', close: 'Closed' };
+                        content += '<li>' + day + ': ' + hours.open + ' - ' + hours.close + '</li>';
+                    });
+                    content += '</ul>';
+
+                    content += '</div>';
+
+                    card.innerHTML = content;
+
+                    card.onclick = function(event) {
+                        const clickedElem = event.target;
+                        const clickedInsideStar = clickedElem.classList.contains('stars') || clickedElem.parentElement.classList.contains('stars');
+
+                        if (clickedInsideStar) {
+                            return;
+                        }
+
+                        const detailSec = card.querySelector('.details');
+
+                        if (detailSec.style.display === 'none') {
+                            detailSec.style.display = 'block';
+                        } else {
+                            detailSec.style.display = 'none';
+                        }
+                    };
+
+                    const starContainer = card.querySelector('.stars');
+
+                    starContainer.addEventListener('click', function(event) {
+                        const clickedElem = event.target;
+
+                        if (clickedElem.tagName === 'SPAN') {
+                            const starValue = parseInt(clickedElem.getAttribute('data-star'));
+
+                            localStorage.setItem('rating_' + key, starValue);
+
+                            updateStarDisplay(starContainer, starValue);
+                        }
+                    });
+
+                    container.appendChild(card);
+                }
+            }
+        }
+
+        function updateStarDisplay(starsContainer, rating) {
+            Array.from(starsContainer.children).forEach(star => {
+                star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+            });
+        }
+
+        window.onload = displayBusinesses;
+    </script>
+
+</body>
+</html>
