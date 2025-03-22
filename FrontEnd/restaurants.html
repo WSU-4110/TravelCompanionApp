@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Attractions - Travel Companion</title>
+    <title>Restaurants - Travel Companion</title>
 
     <style>
         body {
-            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
+            background: url('images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
@@ -17,7 +17,7 @@
             align-items: center;
             position: relative;
         }
-
+        
         body::before {
             content: "";
             position: absolute;
@@ -28,7 +28,7 @@
             background: rgba(0, 0, 0, 0.6);
             z-index: -1;
         }
-
+        
         .page-header {
             width: 100%;
             background: rgba(30, 58, 138, 0.9);
@@ -38,13 +38,13 @@
             font-size: 24px;
             font-weight: bold;
         }
-
+        
         .page-content {
             text-align: center;
             padding: 40px 20px;
             width: 100%;
         }
-
+        
         .list-container {
             display: flex;
             flex-wrap: wrap;
@@ -53,7 +53,7 @@
             max-width: 1200px;
             margin: 20px auto;
         }
-
+        
         .list-item {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
@@ -63,7 +63,6 @@
             text-align: left;
             font-size: 16px;
             color: #333;
-            cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -71,7 +70,7 @@
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
-
+        
         .stars {
             font-size: 24px;
             cursor: pointer;
@@ -82,7 +81,7 @@
         .stars span.selected {
             color: gold;
         }
-
+        
         .check-in {
             display: flex;
             align-items: center;
@@ -90,7 +89,7 @@
             font-size: 14px;
             margin-top: 5px;
         }
-
+        
         .btn-container {
             display: flex;
             gap: 15px;
@@ -116,39 +115,38 @@
 <body>
 
     <header class="page-header">
-        <h1>Local Attractions</h1>
+        <h1>Restaurants</h1>
     </header>
 
     <section class="page-content">
-        <h2>Discover the Best Local Attractions</h2>
-
-        <div class="list-container" id="attractionsList"></div>
-
+        <h2>Find the Best Restaurants</h2>
+        <div class="list-container" id="restaurantList"></div>
         <div class="btn-container">
             <a href="HomePage.html" class="btn">Back to Homepage</a>
         </div>
     </section>
 
     <script>
-        function loadAttractions() {
-            let attractionsList = document.getElementById("attractionsList");
-            attractionsList.innerHTML = "";
+        function loadRestaurants() {
+            let restaurantList = document.getElementById("restaurantList");
+            restaurantList.innerHTML = "";
 
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 
-                if (key.startsWith("attraction_")) {
-                    const attraction = JSON.parse(localStorage.getItem(key));
+                if (key.startsWith("restaurant_")) {
+                    const restaurant = JSON.parse(localStorage.getItem(key));
                     const savedRating = localStorage.getItem('rating_' + key) || 0;
                     const isCheckedIn = localStorage.getItem('checkedin_' + key) === 'true';
-
-                    const attractionItem = document.createElement("div");
-                    attractionItem.classList.add("list-item");
-
+                    
+                    const restaurantItem = document.createElement("div");
+                    restaurantItem.classList.add("list-item");
+                    
                     let content = `
-                        📍 <strong>${attraction.name}</strong>
-                        <p><strong>City:</strong> ${attraction.city}</p>
-                        <p><strong>Description:</strong> ${attraction.description}</p>
+                        🍽️ <strong>${restaurant.name}</strong>
+                        <p><strong>City:</strong> ${restaurant.city}</p>
+                        <p><strong>Address:</strong> ${restaurant.address}</p>
+                        <p><strong>Description:</strong> ${restaurant.description}</p>
                         <div class="stars" data-key="${key}">
                     `;
                     for (let star = 1; star <= 5; star++) {
@@ -162,9 +160,9 @@
                         </div>
                     `;
                     
-                    attractionItem.innerHTML = content;
+                    restaurantItem.innerHTML = content;
                     
-                    const starContainer = attractionItem.querySelector('.stars');
+                    const starContainer = restaurantItem.querySelector('.stars');
                     starContainer.addEventListener('click', function(event) {
                         if (event.target.tagName === 'SPAN') {
                             const starValue = parseInt(event.target.getAttribute('data-star'));
@@ -173,12 +171,8 @@
                         }
                     });
 
-                    attractionsList.appendChild(attractionItem);
+                    restaurantList.appendChild(restaurantItem);
                 }
-            }
-
-            if (attractionsList.innerHTML === "") {
-                attractionsList.innerHTML = "<p>No attractions available.</p>";
             }
         }
 
@@ -188,7 +182,7 @@
             });
         }
 
-        window.onload = loadAttractions;
+        window.onload = loadRestaurants;
     </script>
 
 </body>
