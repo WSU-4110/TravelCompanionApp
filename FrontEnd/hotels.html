@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurants - Travel Companion</title>
+    <title>Hotels - Travel Companion</title>
 
     <style>
+        /* Background Image */
         body {
-            background: url('assets/images/hero-image.jpg') no-repeat center center/cover;
+            background: url('images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
@@ -17,7 +18,8 @@
             align-items: center;
             position: relative;
         }
-        
+
+        /* Dark Overlay */
         body::before {
             content: "";
             position: absolute;
@@ -28,7 +30,8 @@
             background: rgba(0, 0, 0, 0.6);
             z-index: -1;
         }
-        
+
+        /* Page Header */
         .page-header {
             width: 100%;
             background: rgba(30, 58, 138, 0.9);
@@ -38,13 +41,15 @@
             font-size: 24px;
             font-weight: bold;
         }
-        
+
+        /* Page Content */
         .page-content {
             text-align: center;
             padding: 40px 20px;
             width: 100%;
         }
-        
+
+        /* List Container */
         .list-container {
             display: flex;
             flex-wrap: wrap;
@@ -53,7 +58,8 @@
             max-width: 1200px;
             margin: 20px auto;
         }
-        
+
+        /* Individual Hotel Item */
         .list-item {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
@@ -63,6 +69,7 @@
             text-align: left;
             font-size: 16px;
             color: #333;
+            cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -70,7 +77,8 @@
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
-        
+
+        /* Star Rating */
         .stars {
             font-size: 24px;
             cursor: pointer;
@@ -81,7 +89,8 @@
         .stars span.selected {
             color: gold;
         }
-        
+
+        /* Check In */
         .check-in {
             display: flex;
             align-items: center;
@@ -89,7 +98,8 @@
             font-size: 14px;
             margin-top: 5px;
         }
-        
+
+        /* Buttons */
         .btn-container {
             display: flex;
             gap: 15px;
@@ -114,39 +124,45 @@
 </head>
 <body>
 
+    <!-- Page Header -->
     <header class="page-header">
-        <h1>Restaurants</h1>
+        <h1>Hotels</h1>
     </header>
 
+    <!-- Main Content Section -->
     <section class="page-content">
-        <h2>Find the Best Restaurants</h2>
-        <div class="list-container" id="restaurantList"></div>
+        <h2>Find the Best Hotels</h2>
+
+        <!-- Hotel List -->
+        <div class="list-container" id="hotelList"></div>
+
+        <!-- Buttons for navigation -->
         <div class="btn-container">
             <a href="HomePage.html" class="btn">Back to Homepage</a>
         </div>
     </section>
 
     <script>
-        function loadRestaurants() {
-            let restaurantList = document.getElementById("restaurantList");
-            restaurantList.innerHTML = "";
+        function loadHotels() {
+            let hotelList = document.getElementById("hotelList");
+            hotelList.innerHTML = "";
 
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 
-                if (key.startsWith("restaurant_")) {
-                    const restaurant = JSON.parse(localStorage.getItem(key));
+                if (key.startsWith("hotel_")) {
+                    const hotel = JSON.parse(localStorage.getItem(key));
                     const savedRating = localStorage.getItem('rating_' + key) || 0;
                     const isCheckedIn = localStorage.getItem('checkedin_' + key) === 'true';
-                    
-                    const restaurantItem = document.createElement("div");
-                    restaurantItem.classList.add("list-item");
-                    
+
+                    const hotelItem = document.createElement("div");
+                    hotelItem.classList.add("list-item");
+
                     let content = `
-                        🍽️ <strong>${restaurant.name}</strong>
-                        <p><strong>City:</strong> ${restaurant.city}</p>
-                        <p><strong>Address:</strong> ${restaurant.address}</p>
-                        <p><strong>Description:</strong> ${restaurant.description}</p>
+                        🏨 <strong>${hotel.name}</strong>
+                        <p><strong>City:</strong> ${hotel.city}</p>
+                        <p><strong>Address:</strong> ${hotel.address}</p>
+                        <p><strong>Description:</strong> ${hotel.description}</p>
                         <div class="stars" data-key="${key}">
                     `;
                     for (let star = 1; star <= 5; star++) {
@@ -160,9 +176,9 @@
                         </div>
                     `;
                     
-                    restaurantItem.innerHTML = content;
+                    hotelItem.innerHTML = content;
                     
-                    const starContainer = restaurantItem.querySelector('.stars');
+                    const starContainer = hotelItem.querySelector('.stars');
                     starContainer.addEventListener('click', function(event) {
                         if (event.target.tagName === 'SPAN') {
                             const starValue = parseInt(event.target.getAttribute('data-star'));
@@ -171,7 +187,7 @@
                         }
                     });
 
-                    restaurantList.appendChild(restaurantItem);
+                    hotelList.appendChild(hotelItem);
                 }
             }
         }
@@ -182,7 +198,7 @@
             });
         }
 
-        window.onload = loadRestaurants;
+        window.onload = loadHotels;
     </script>
 
 </body>
