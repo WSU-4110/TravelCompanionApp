@@ -1,107 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotels - Travel Companion</title>
-    <style>
-        /* General page styling */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5);
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <title>Hotels - Travel Companion</title>
+  <style>
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
 
-        /* Header styling */
-        .header {
-            width: 100%;
-            background: #007bff;
-            color: white;
-            padding: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
 
-        /* Main content section */
-        .content {
-            margin-top: 80px;
-            text-align: center;
-            padding: 20px;
-        }
+    .page-header {
+      width: 100%;
+      background: rgba(30, 58, 138, 0.9);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-        /* Hotel list container */
-        .hotel-list {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
+    .page-content {
+      text-align: center;
+      padding: 40px 20px;
+      width: 100%;
+    }
 
-        /* Individual hotel item styling */
-        .hotel-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 500px;
-            text-align: left;
-        }
+    .list-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
 
-        /* Back button styling */
-        .back-btn {
-            margin-top: 20px;
-            text-align: center;
-        }
+    .list-item {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      width: 300px;
+      text-align: left;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        /* Back button styling */
-        .back-btn a {
-            background: #007bff;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
+    .list-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
 
-        /* Back button hover effect */
-        .back-btn a:hover {
-            background: #003f7f;
-        }
-    </style>
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
+    }
+
+    .stars span.selected {
+      color: gold;
+    }
+
+    .check-in {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn {
+      background: #1E3A8A;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #152C5B;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Header section -->
-    <div class="header">Hotels</div>
+  <header class="page-header">
+    <h1>Hotels</h1>
+  </header>
 
-    <!-- Main content section -->
-    <div class="content">
-        <h2>Find the Best Hotels</h2>
+  <section class="page-content">
+    <h2>Find the Best Hotels</h2>
 
-        <!-- Hotel listings -->
-        <div class="hotel-list">
-            <div class="hotel-item">🏨 Hotel 1 - <strong>Cheapest in the area</strong></div>
-            <div class="hotel-item">🏨 Hotel 2 - <strong>Highest-rated</strong></div>
-            <div class="hotel-item">🏨 Hotel 3 - <strong>Luxury Stay</strong></div>
-        </div>
+    <div class="list-container" id="hotelList"></div>
 
-        <!-- Back to homepage button -->
-        <div class="back-btn">
-            <a href="homepage.html">Back to Homepage</a>
-        </div>
+    <div class="btn-container">
+      <a href="homepage.html" class="btn">Back to Homepage</a>
     </div>
+  </section>
+
+  <script>
+    function loadHotels() {
+      const hotelList = document.getElementById("hotelList");
+      hotelList.innerHTML = "";
+
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) {
+        alert("No city selected. Please select a city first.");
+        window.location.href = "select-city.html";
+        return;
+      }
+
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+
+        if (key.startsWith("hotel_" + normalizedCity + "_")) {
+          const hotel = JSON.parse(localStorage.getItem(key));
+          const savedRating = localStorage.getItem("rating_" + key) || 0;
+          const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+          const hotelItem = document.createElement("div");
+          hotelItem.classList.add("list-item");
+
+          let content = `
+            🏨 <strong>${hotel.name}</strong>
+            <p><strong>City:</strong> ${hotel.city}</p>
+            <p><strong>Address:</strong> ${hotel.address}</p>
+            <p><strong>Description:</strong> ${hotel.description}</p>
+            <div class="stars" data-key="${key}">
+          `;
+          for (let star = 1; star <= 5; star++) {
+            content += <span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>;
+          }
+          content += `</div>
+            <div class="check-in">
+              <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+              <label for="checkin_${key}">Check In</label>
+            </div>
+          `;
+
+          hotelItem.innerHTML = content;
+
+          const starContainer = hotelItem.querySelector(".stars");
+          starContainer.addEventListener("click", function (event) {
+            if (event.target.tagName === "SPAN") {
+              const starValue = parseInt(event.target.getAttribute("data-star"));
+              localStorage.setItem("rating_" + key, starValue);
+              updateStarDisplay(starContainer, starValue);
+            }
+          });
+
+          const checkinBox = hotelItem.querySelector(#checkin_${key});
+          checkinBox.addEventListener("change", function () {
+            localStorage.setItem("checkedin_" + key, checkinBox.checked);
+          });
+
+          hotelList.appendChild(hotelItem);
+        }
+      }
+    }
+
+    function updateStarDisplay(container, rating) {
+      Array.from(container.children).forEach(star => {
+        const starNumber = parseInt(star.getAttribute("data-star"));
+        star.classList.toggle("selected", starNumber <= rating);
+      });
+    }
+
+    window.onload = loadHotels;
+  </script>
 
 </body>
 </html>
