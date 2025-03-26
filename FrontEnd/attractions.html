@@ -125,25 +125,34 @@
         <div class="list-container" id="attractionsList"></div>
 
         <div class="btn-container">
-            <a href="HomePage.html" class="btn">Back to Homepage</a>
+            <a href="homepage.html" class="btn">Back to Homepage</a>
         </div>
     </section>
 
     <script>
         function loadAttractions() {
+            const selectedCity = localStorage.getItem("selectedCity");
+            const normalizedCity = selectedCity ? selectedCity.replace(/\s+/g, "_") : null;
+
+            if (!normalizedCity) {
+                alert("No city selected. Please select a city first.");
+                window.location.href = "select-city.html";
+                return;
+            }
+
             let attractionsList = document.getElementById("attractionsList");
             attractionsList.innerHTML = "";
 
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                
-                if (key.startsWith("attraction_")) {
-                    const attraction = JSON.parse(localStorage.getItem(key));
-                    const savedRating = localStorage.getItem('rating_' + key) || 0;
-                    const isCheckedIn = localStorage.getItem('checkedin_' + key) === 'true';
 
-                    const attractionItem = document.createElement("div");
-                    attractionItem.classList.add("list-item");
+                if (key.startsWith("attraction_" + normalizedCity + "_")) {
+                    const attraction = JSON.parse(localStorage.getItem(key));
+                    const savedRating = localStorage.getItem("rating_" + key) || 0;
+                    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+                    const item = document.createElement("div");
+                    item.classList.add("list-item");
 
                     let content = `
                         📍 <strong>${attraction.name}</strong>
@@ -154,37 +163,42 @@
                     for (let star = 1; star <= 5; star++) {
                         content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
                     }
-                    content += '</div>';
-                    content += `
+                    content += `</div>
                         <div class="check-in">
-                            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? 'checked' : ''}>
+                            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
                             <label for="checkin_${key}">Check In</label>
                         </div>
                     `;
-                    
-                    attractionItem.innerHTML = content;
-                    
-                    const starContainer = attractionItem.querySelector('.stars');
-                    starContainer.addEventListener('click', function(event) {
-                        if (event.target.tagName === 'SPAN') {
-                            const starValue = parseInt(event.target.getAttribute('data-star'));
-                            localStorage.setItem('rating_' + key, starValue);
-                            updateStarDisplay(starContainer, starValue);
+
+                    item.innerHTML = content;
+
+                    const stars = item.querySelector(".stars");
+                    stars.addEventListener("click", function (event) {
+                        if (event.target.tagName === "SPAN") {
+                            const starValue = parseInt(event.target.getAttribute("data-star"));
+                            localStorage.setItem("rating_" + key, starValue);
+                            updateStarDisplay(stars, starValue);
                         }
                     });
 
-                    attractionsList.appendChild(attractionItem);
+                    const checkinBox = item.querySelector(`#checkin_${key}`);
+                    checkinBox.addEventListener("change", function () {
+                        localStorage.setItem("checkedin_" + key, checkinBox.checked);
+                    });
+
+                    attractionsList.appendChild(item);
                 }
             }
 
-            if (attractionsList.innerHTML === "") {
-                attractionsList.innerHTML = "<p>No attractions available.</p>";
+            if (!attractionsList.hasChildNodes()) {
+                attractionsList.innerHTML = "<p>No attractions available for this city.</p>";
             }
         }
 
-        function updateStarDisplay(starsContainer, rating) {
-            Array.from(starsContainer.children).forEach(star => {
-                star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+        function updateStarDisplay(container, rating) {
+            Array.from(container.children).forEach(star => {
+                const val = parseInt(star.getAttribute("data-star"));
+                star.classList.toggle("selected", val <= rating);
             });
         }
 

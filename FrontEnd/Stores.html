@@ -1,157 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stores - Travel Companion</title>
+  <meta charset="UTF-8">
+  <title>Stores - Travel Companion</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-    <style>
-        /* Background Image */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: url('images/hero-image.jpg') no-repeat center center/cover;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .overlay {
+      width: 100%;
+      min-height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        /* Overlay for readability */
-        .overlay {
-            width: 100%;
-            min-height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .page-header {
+      width: 100%;
+      background: #1E3A8A;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-        /* Page Header */
-        .page-header {
-            width: 100%;
-            background: #1E3A8A;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
+    .page-content {
+      text-align: center;
+      padding: 40px 20px;
+      width: 100%;
+    }
 
-        /* Page Content */
-        .page-content {
-            text-align: center;
-            padding: 40px 20px;
-            width: 100%;
-        }
+    .list-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
 
-        /* List Container */
-        .list-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
+    .list-item {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: left;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        /* Individual Store Item */
-        .list-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 300px;
-            text-align: left;
-            font-size: 16px;
-            color: #333;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    .list-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
 
-        .list-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+    .back-btn {
+      text-align: center;
+      margin-top: 20px;
+    }
 
-        /* Back Button */
-        .back-btn {
-            text-align: center;
-            margin-top: 20px;
-        }
+    .back-btn a {
+      background: #1E3A8A;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
 
-        .back-btn a {
-            background: #1E3A8A;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-
-        .back-btn a:hover {
-            background: #152C5B;
-        }
-    </style>
+    .back-btn a:hover {
+      background: #152C5B;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="overlay">
-        <!-- Page Header -->
-        <header class="page-header">
-            <h1>Stores</h1>
-        </header>
+  <div class="overlay">
+    <header class="page-header">
+      <h1>Stores</h1>
+    </header>
 
-        <!-- Main Content Section -->
-        <section class="page-content">
-            <h2>Find the Best Local Stores</h2>
+    <section class="page-content">
+      <h2>Find the Best Local Stores</h2>
+      <div class="list-container" id="businessList"></div>
 
-            <!-- Store List -->
-            <div class="list-container" id="businessList"></div>
+      <div class="back-btn">
+        <a href="HomePage.html" class="btn">Back to Homepage</a>
+      </div>
+    </section>
+  </div>
 
-            <!-- Back to Homepage Button -->
-            <div class="back-btn">
-                <a href="HomePage.html" class="btn">Back to Homepage</a>
-            </div>
-        </section>
-    </div>
+  <script>
+    function displayBusinesses() {
+      const container = document.getElementById('businessList');
+      container.innerHTML = '';
 
-    <script>
-        function displayBusinesses() {
-            const container = document.getElementById('businessList');
-            container.innerHTML = '';
+      const selectedCity = localStorage.getItem('selectedCity');
+      if (!selectedCity) {
+        alert("No city selected. Please select a city.");
+        window.location.href = "select-city.html";
+        return;
+      }
 
-            let stores = JSON.parse(localStorage.getItem("stores")) || [];
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+      const stores = [];
 
-            stores.forEach((store, index) => {
-                const card = document.createElement('div');
-                card.className = 'list-item';
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
 
-                let content = `
-                    <h3>${store.name}</h3>
-                    <p><strong>City:</strong> ${store.city}</p>
-                    <p><strong>Address:</strong> ${store.address}</p>
-                    <p><strong>Description:</strong> ${store.description}</p>
-                    <h4>Products:</h4>
-                    <ul>
-                        ${store.products.map(product => `<li>${product.name} - $${product.price}</li>`).join('')}
-                    </ul>
-                    <h4>Business Hours:</h4>
-                    <ul>
-                        ${Object.keys(store.hours).map(day => `
-                            <li><strong>${day}:</strong> ${store.hours[day].open} - ${store.hours[day].close}</li>
-                        `).join('')}
-                    </ul>
-                `;
-
-                card.innerHTML = content;
-                container.appendChild(card);
-            });
+        if (key.startsWith("store_" + normalizedCity + "_")) {
+          const store = JSON.parse(localStorage.getItem(key));
+          stores.push(store);
         }
+      }
 
-        window.onload = displayBusinesses;
-    </script>
+      if (stores.length === 0) {
+        container.innerHTML = `<p style="color:white;">No stores registered for ${selectedCity} yet.</p>`;
+        return;
+      }
+
+      stores.forEach(store => {
+        const card = document.createElement('div');
+        card.className = 'list-item';
+
+        let content = `
+          <h3>${store.name}</h3>
+          <p><strong>City:</strong> ${store.city}</p>
+          <p><strong>Address:</strong> ${store.address}</p>
+          <p><strong>Description:</strong> ${store.description}</p>
+          <h4>Products:</h4>
+          <ul>
+            ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
+          </ul>
+          <h4>Business Hours:</h4>
+          <ul>
+            ${Object.entries(store.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
+          </ul>
+        `;
+
+        card.innerHTML = content;
+        container.appendChild(card);
+      });
+    }
+
+    window.onload = displayBusinesses;
+  </script>
 
 </body>
 </html>

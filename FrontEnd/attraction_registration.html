@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Register Local Attraction - Travel Companion</title>
     <style>
-        /* Background Image */
         body {
             background: url('images/hero-image.jpg') no-repeat center center/cover;
             font-family: 'Poppins', sans-serif;
@@ -18,7 +17,6 @@
             position: relative;
         }
 
-        /* Dark Overlay */
         body::before {
             content: "";
             position: absolute;
@@ -30,7 +28,6 @@
             z-index: -1;
         }
 
-        /* Form Container */
         .container {
             background: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -44,7 +41,6 @@
             color: #1E3A8A;
         }
 
-        /* Input Fields */
         input, textarea {
             width: 100%;
             padding: 10px;
@@ -55,7 +51,6 @@
             text-align: center;
         }
 
-        /* Button */
         .btn {
             width: 100%;
             padding: 12px;
@@ -73,27 +68,23 @@
             background: #152C5B;
         }
 
-        /* Add Activity Button */
         .add-item-btn {
             background-color: #28a745;
             margin-top: 10px;
         }
 
-        /* Grid Layout for Hours */
         .times-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 5px;
         }
 
-        /* Make Days of the Week More Visible */
         .times-grid div {
             font-weight: bold;
-            color: #1E3A8A; /* Dark blue for better visibility */
+            color: #1E3A8A;
             text-align: left;
         }
 
-        /* Back Button */
         .back-btn {
             text-align: center;
             margin-top: 20px;
@@ -121,7 +112,7 @@
         <form id="attractionForm" onsubmit="storeAttraction(); return false;">
             <input type="text" id="attractionName" placeholder="Attraction Name" required>
             <textarea id="description" placeholder="Description" required></textarea>
-            <input type="text" id="city" placeholder="City" required>
+            <input type="text" id="city" placeholder="City" readonly>
             <input type="text" id="address" placeholder="Address" required>
             <input type="number" id="registrationFee" placeholder="Registration Fee ($)" required>
 
@@ -147,27 +138,42 @@
             <button type="submit" class="btn">Submit Attraction</button>
         </form>
 
-        <!-- Back to Homepage Button -->
         <div class="back-btn">
-            <a href="HomePage.html">Back to Homepage</a>
+            <a href="homepage.html">Back to Homepage</a>
         </div>
     </div>
 
     <script>
+        window.onload = () => {
+            const selectedCity = localStorage.getItem("selectedCity");
+            if (!selectedCity) {
+                alert("Please select a city before registering.");
+                window.location.href = "select-city.html";
+            } else {
+                document.getElementById("city").value = selectedCity;
+            }
+        };
+
         function addActivity() {
             const container = document.getElementById('activitiesContainer');
             const activityDiv = document.createElement('div');
-            activityDiv.innerHTML = `
-                <input type="text" placeholder="Activity Name" required>
-            `;
+            activityDiv.innerHTML = `<input type="text" placeholder="Activity Name" required>`;
             container.appendChild(activityDiv);
         }
 
         function storeAttraction() {
+            const selectedCity = localStorage.getItem("selectedCity");
+            if (!selectedCity) {
+                alert("No city selected.");
+                return;
+            }
+
+            const normalizedCity = selectedCity.replace(/\s+/g, "_");
+
             const attraction = {
                 name: document.getElementById('attractionName').value,
                 description: document.getElementById('description').value,
-                city: document.getElementById('city').value,
+                city: selectedCity,
                 address: document.getElementById('address').value,
                 registrationFee: parseFloat(document.getElementById('registrationFee').value),
                 activities: [],
@@ -183,7 +189,6 @@
 
             const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
             const timeInputs = document.querySelectorAll('.times-grid input');
-
             for (let i = 0; i < days.length; i++) {
                 attraction.hours[days[i]] = {
                     open: timeInputs[i * 2].value,
@@ -191,11 +196,13 @@
                 };
             }
 
-            localStorage.setItem('attraction_' + Date.now(), JSON.stringify(attraction));
+            const key = "attraction_" + normalizedCity + "_" + Date.now();
+            localStorage.setItem(key, JSON.stringify(attraction));
 
             alert('Attraction registered successfully!');
             document.getElementById('attractionForm').reset();
             document.getElementById('activitiesContainer').innerHTML = '<div><input type="text" placeholder="Activity Name" required></div>';
+            window.location.href = "attractions.html";
         }
     </script>
 
