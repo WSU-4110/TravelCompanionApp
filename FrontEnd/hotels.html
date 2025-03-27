@@ -160,7 +160,7 @@
             <div class="stars" data-key="${key}">
           `;
           for (let star = 1; star <= 5; star++) {
-            content += <span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>;
+            content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
           }
           content += `</div>
             <div class="check-in">
@@ -180,7 +180,7 @@
             }
           });
 
-          const checkinBox = hotelItem.querySelector(#checkin_${key});
+          const checkinBox = hotelItem.querySelector(`#checkin_${key}`);
           checkinBox.addEventListener("change", function () {
             localStorage.setItem("checkedin_" + key, checkinBox.checked);
           });

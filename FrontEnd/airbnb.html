@@ -160,11 +160,10 @@
           `;
 
           for (let s = 1; s <= 5; s++) {
-            content += <span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>;
+            content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
           }
 
-          content += `
-            </div>
+          content += `</div>
             <div class="check-in">
               <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
               <label for="checkin_${key}">Check In</label>
@@ -182,7 +181,7 @@
             }
           });
 
-          const checkinBox = item.querySelector(#checkin_${key});
+          const checkinBox = item.querySelector(`#checkin_${key}`);
           checkinBox.addEventListener("change", function () {
             localStorage.setItem("checkedin_" + key, checkinBox.checked);
           });
