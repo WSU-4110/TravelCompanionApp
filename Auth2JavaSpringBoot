@@ -1,0 +1,32 @@
+package com.example.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
+
+import java.util.Map;
+
+@Service
+public class CognitoAuthService {
+
+    @Value("${aws.cognito.client-id}")
+    private String clientId;
+
+    private final CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.create();
+
+    public String userlogin(String username, String password) {
+        try {
+            InitiateAuthRequest request = InitiateAuthRequest.builder()
+                .authFlow(AuthFlowType.USER_PASSWORD_AUTH)
+                .clientId(clientId)
+                .authParameters(Map.of("USERNAME", username, "PASSWORD", password))
+                .build();
+
+            InitiateAuthResponse response = cognitoClient.initiateAuth(request);
+            return response.authenticationResult().idToken();
+        } catch (CognitoIdentityProviderException e) {
+            return "Login error: " + e.getMessage();
+        }
+    }
+}

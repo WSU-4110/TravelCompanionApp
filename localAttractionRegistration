@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Local Attraction - Travel Companion</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+        input, textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .add-item-btn {
+            background-color: #28a745;
+        }
+        .times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Register Local Attraction</h2>
+    <form id="attractionForm" onsubmit="storeAttraction(); return false;">
+        <input type="text" id="attractionName" placeholder="Local Attraction Name" required>
+        <input type="number" id="registrationFee" placeholder="Registration Fee ($)" required>
+
+        <h4>Activities at Attraction</h4>
+        <div id="activitiesContainer">
+            <div>
+                <input type="text" placeholder="Activity Name" required>
+            </div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addActivity()">+ Add Activity</button>
+
+        <h4>Operating Hours</h4>
+        <div class="times-grid">
+            <div>Mon: <input type="time"> to <input type="time"></div>
+            <div>Tue: <input type="time"> to <input type="time"></div>
+            <div>Wed: <input type="time"> to <input type="time"></div>
+            <div>Thu: <input type="time"> to <input type="time"></div>
+            <div>Fri: <input type="time"> to <input type="time"></div>
+            <div>Sat: <input type="time"> to <input type="time"></div>
+            <div>Sun: <input type="time"> to <input type="time"></div>
+        </div>
+
+        <button type="submit">Submit Attraction</button>
+    </form>
+</div>
+
+<script>
+function addActivity() {
+    const container = document.getElementById('activitiesContainer');
+    const activityDiv = document.createElement('div');
+    activityDiv.innerHTML = `
+        <input type="text" placeholder="Activity Name" required>
+    `;
+    container.appendChild(activityDiv);
+}
+
+function storeAttraction() {
+    const attraction = {
+        name: document.getElementById('attractionName').value,
+        registrationFee: parseFloat(document.getElementById('registrationFee').value),
+        activities: [],
+        hours: {}
+    };
+
+    const activityInputs = document.querySelectorAll('#activitiesContainer input');
+    activityInputs.forEach(input => {
+        if (input.value.trim()) {
+            attraction.activities.push(input.value.trim());
+        }
+    });
+
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const timeInputs = document.querySelectorAll('.times-grid input');
+
+    for (let i = 0; i < days.length; i++) {
+        attraction.hours[days[i]] = {
+            open: timeInputs[i * 2].value,
+            close: timeInputs[i * 2 + 1].value
+        };
+    }
+
+    localStorage.setItem('attraction_' + Date.now(), JSON.stringify(attraction));
+
+    alert('Attraction registered successfully!');
+    document.getElementById('attractionForm').reset();
+    document.getElementById('activitiesContainer').innerHTML = '<div><input type="text" placeholder="Activity Name" required></div>';
+}
+</script>
+
+</body>
+</html>
