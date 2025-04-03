@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Stores - Travel Companion</title>
   <style>
     body {
@@ -39,6 +39,16 @@
       width: 100%;
     }
 
+    .sort-section {
+      margin-bottom: 20px;
+    }
+
+    .sort-section select {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -64,6 +74,17 @@
     .list-item:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
+    }
+
+    .stars span.selected {
+      color: gold;
     }
 
     .back-btn {
@@ -95,6 +116,19 @@
 
     <section class="page-content">
       <h2>Find the Best Local Stores</h2>
+
+      <!-- Sort dropdown -->
+      <div class="sort-section">
+        <label for="sortSelect">Sort by:</label>
+        <select id="sortSelect" onchange="sortStores()">
+          <option value="">-- Select --</option>
+          <option value="low">Price (Lowest First)</option>
+          <option value="high">Price (Highest First)</option>
+          <option value="ratingHigh">Rating (High to Low)</option>
+          <option value="ratingLow">Rating (Low to High)</option>
+        </select>
+      </div>
+
       <div class="list-container" id="businessList"></div>
 
       <div class="back-btn">
@@ -104,35 +138,26 @@
   </div>
 
   <script>
-    function displayBusinesses() {
+    let storeArray = [];
+
+    function getLowestProductPrice(products) {
+      const prices = products.map(p => parseFloat(p.price)).filter(price => !isNaN(price) && price > 0);
+      return prices.length > 0 ? Math.min(...prices) : Infinity;
+    }
+
+    function displayBusinesses(list) {
       const container = document.getElementById('businessList');
       container.innerHTML = '';
 
-      const selectedCity = localStorage.getItem('selectedCity');
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
+      if (list.length === 0) {
+        container.innerHTML = `<p style="color:white;">No stores registered for this city yet.</p>`;
         return;
       }
 
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      const stores = [];
+      list.forEach(store => {
+        const startingPrice = getLowestProductPrice(store.products);
+        const savedRating = store.rating || 0;
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key.startsWith("store_" + normalizedCity + "_")) {
-          const store = JSON.parse(localStorage.getItem(key));
-          stores.push(store);
-        }
-      }
-
-      if (stores.length === 0) {
-        container.innerHTML = `<p style="color:white;">No stores registered for ${selectedCity} yet.</p>`;
-        return;
-      }
-
-      stores.forEach(store => {
         const card = document.createElement('div');
         card.className = 'list-item';
 
@@ -141,10 +166,19 @@
           <p><strong>City:</strong> ${store.city}</p>
           <p><strong>Address:</strong> ${store.address}</p>
           <p><strong>Description:</strong> ${store.description}</p>
+          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
           <h4>Products:</h4>
           <ul>
             ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
           </ul>
+          <div class="stars" data-key="${store.key}">
+        `;
+
+        for (let s = 1; s <= 5; s++) {
+          content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
+        }
+
+        content += `</div>
           <h4>Business Hours:</h4>
           <ul>
             ${Object.entries(store.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
@@ -152,11 +186,69 @@
         `;
 
         card.innerHTML = content;
+
+        const starContainer = card.querySelector('.stars');
+        starContainer.addEventListener('click', function (event) {
+          if (event.target.tagName === 'SPAN') {
+            const starValue = parseInt(event.target.getAttribute('data-star'));
+            localStorage.setItem('rating_' + store.key, starValue);
+            store.rating = starValue;
+            updateStarDisplay(starContainer, starValue);
+          }
+        });
+
         container.appendChild(card);
       });
     }
 
-    window.onload = displayBusinesses;
+    function updateStarDisplay(starsContainer, rating) {
+      Array.from(starsContainer.children).forEach(star => {
+        const starNumber = parseInt(star.getAttribute("data-star"));
+        star.classList.toggle("selected", starNumber <= rating);
+      });
+    }
+
+    function sortStores() {
+      const sortValue = document.getElementById("sortSelect").value;
+
+      if (sortValue === "low") {
+        storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
+      } else if (sortValue === "high") {
+        storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
+      } else if (sortValue === "ratingHigh") {
+        storeArray.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else if (sortValue === "ratingLow") {
+        storeArray.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+      }
+
+      displayBusinesses(storeArray);
+    }
+
+    function loadStores() {
+      const selectedCity = localStorage.getItem('selectedCity');
+      if (!selectedCity) {
+        alert("No city selected. Please select a city.");
+        window.location.href = "select-city.html";
+        return;
+      }
+
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+      storeArray = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("store_" + normalizedCity + "_")) {
+          const store = JSON.parse(localStorage.getItem(key));
+          store.key = key;
+          store.rating = parseFloat(localStorage.getItem("rating_" + key)) || 0;
+          storeArray.push(store);
+        }
+      }
+
+      displayBusinesses(storeArray);
+    }
+
+    window.onload = loadStores;
   </script>
 
 </body>

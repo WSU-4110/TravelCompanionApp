@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hotels - Travel Companion</title>
   <style>
     body {
@@ -43,6 +44,16 @@
       width: 100%;
     }
 
+    .sort-section {
+      margin-bottom: 20px;
+    }
+
+    .sort-section select {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -61,7 +72,6 @@
       text-align: left;
       font-size: 16px;
       color: #333;
-      cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -120,6 +130,18 @@
   <section class="page-content">
     <h2>Find the Best Hotels</h2>
 
+    <!-- Sort dropdown -->
+    <div class="sort-section">
+      <label for="sortSelect">Sort by:</label>
+      <select id="sortSelect" onchange="sortHotels()">
+        <option value="">-- Select --</option>
+        <option value="low">Price (Lowest)</option>
+        <option value="high">Price (Highest)</option>
+        <option value="rating">Rating (Highest)</option>
+        <option value="rating_low">Rating (Lowest)</option>
+      </select>
+    </div>
+
     <div class="list-container" id="hotelList"></div>
 
     <div class="btn-container">
@@ -143,51 +165,60 @@
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-
         if (key.startsWith("hotel_" + normalizedCity + "_")) {
           const hotel = JSON.parse(localStorage.getItem(key));
-          const savedRating = localStorage.getItem("rating_" + key) || 0;
-          const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
-
-          const hotelItem = document.createElement("div");
-          hotelItem.classList.add("list-item");
-
-          let content = `
-            🏨 <strong>${hotel.name}</strong>
-            <p><strong>City:</strong> ${hotel.city}</p>
-            <p><strong>Address:</strong> ${hotel.address}</p>
-            <p><strong>Description:</strong> ${hotel.description}</p>
-            <div class="stars" data-key="${key}">
-          `;
-          for (let star = 1; star <= 5; star++) {
-            content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-          }
-          content += `</div>
-            <div class="check-in">
-              <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-              <label for="checkin_${key}">Check In</label>
-            </div>
-          `;
-
-          hotelItem.innerHTML = content;
-
-          const starContainer = hotelItem.querySelector(".stars");
-          starContainer.addEventListener("click", function (event) {
-            if (event.target.tagName === "SPAN") {
-              const starValue = parseInt(event.target.getAttribute("data-star"));
-              localStorage.setItem("rating_" + key, starValue);
-              updateStarDisplay(starContainer, starValue);
-            }
-          });
-
-          const checkinBox = hotelItem.querySelector(`#checkin_${key}`);
-          checkinBox.addEventListener("change", function () {
-            localStorage.setItem("checkedin_" + key, checkinBox.checked);
-          });
-
-          hotelList.appendChild(hotelItem);
+          if (!hotel.rooms || !hotel.rooms.some(r => parseFloat(r.price) > 0)) continue;
+          displayHotel(hotel, key);
         }
       }
+    }
+
+    function displayHotel(hotel, key) {
+      const hotelList = document.getElementById("hotelList");
+      const savedRating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+      const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+      const item = document.createElement("div");
+      item.classList.add("list-item");
+
+      let content = `
+        🏨 <strong>${hotel.name}</strong>
+        <p><strong>City:</strong> ${hotel.city}</p>
+        <p><strong>Address:</strong> ${hotel.address}</p>
+        <p><strong>Description:</strong> ${hotel.description}</p>
+        <p><strong>Starting Price:</strong> $${getStartingPrice(hotel.rooms)}</p>
+        <div class="stars" data-key="${key}">
+      `;
+      for (let star = 1; star <= 5; star++) {
+        content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
+      }
+      content += `
+        </div>
+        <div class="check-in">
+          <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+          <label for="checkin_${key}">Check In</label>
+        </div>
+      `;
+
+      item.innerHTML = content;
+
+      // Ratings event
+      const starContainer = item.querySelector(".stars");
+      starContainer.addEventListener("click", function (event) {
+        if (event.target.tagName === "SPAN") {
+          const starValue = parseInt(event.target.getAttribute("data-star"));
+          localStorage.setItem("rating_" + key, starValue);
+          updateStarDisplay(starContainer, starValue);
+        }
+      });
+
+      // Check-in event
+      const checkinBox = item.querySelector(`#checkin_${key}`);
+      checkinBox.addEventListener("change", function () {
+        localStorage.setItem("checkedin_" + key, checkinBox.checked);
+      });
+
+      hotelList.appendChild(item);
     }
 
     function updateStarDisplay(container, rating) {
@@ -195,6 +226,53 @@
         const starNumber = parseInt(star.getAttribute("data-star"));
         star.classList.toggle("selected", starNumber <= rating);
       });
+    }
+
+    function getStartingPrice(rooms) {
+      let lowest = null;
+      rooms.forEach(room => {
+        const price = parseFloat(room.price);
+        if (!isNaN(price) && price > 0) {
+          if (lowest === null || price < lowest) lowest = price;
+        }
+      });
+      return lowest !== null ? lowest : "N/A";
+    }
+
+    function sortHotels() {
+      const sortVal = document.getElementById("sortSelect").value;
+      const hotelList = document.getElementById("hotelList");
+      hotelList.innerHTML = "";
+
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) return;
+
+      const cityKey = selectedCity.replace(/\s+/g, "_");
+      const hotels = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("hotel_" + cityKey + "_")) {
+          const hotel = JSON.parse(localStorage.getItem(key));
+          if (!hotel.rooms || !hotel.rooms.some(r => parseFloat(r.price) > 0)) continue;
+          hotel.key = key;
+          hotel.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+          hotel.startingPrice = getStartingPrice(hotel.rooms);
+          hotels.push(hotel);
+        }
+      }
+
+      if (sortVal === "high") {
+        hotels.sort((a, b) => b.startingPrice - a.startingPrice);
+      } else if (sortVal === "low") {
+        hotels.sort((a, b) => a.startingPrice - b.startingPrice);
+      } else if (sortVal === "rating") {
+        hotels.sort((a, b) => b.rating - a.rating);
+      } else if (sortVal === "rating_low") {
+        hotels.sort((a, b) => a.rating - b.rating);
+      }
+
+      hotels.forEach(hotel => displayHotel(hotel, hotel.key));
     }
 
     window.onload = loadHotels;
