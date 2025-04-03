@@ -1,209 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Attractions - Travel Companion</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Attractions - Travel Companion</title>
+  <style>
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
 
-    <style>
-        body {
-            background: url('images/hero-image.jpg') no-repeat center center/cover;
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: -1;
-        }
+    .page-header {
+      width: 100%;
+      background: rgba(30, 58, 138, 0.9);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-        .page-header {
-            width: 100%;
-            background: rgba(30, 58, 138, 0.9);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
+    .page-content {
+      text-align: center;
+      padding: 40px 20px;
+      width: 100%;
+    }
 
-        .page-content {
-            text-align: center;
-            padding: 40px 20px;
-            width: 100%;
-        }
+    .sort-section {
+      margin-bottom: 20px;
+    }
 
-        .list-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
+    .sort-section select {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
 
-        .list-item {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            width: 300px;
-            text-align: left;
-            font-size: 16px;
-            color: #333;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    .list-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
 
-        .list-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-        }
+    .list-item {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      width: 300px;
+      text-align: left;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        .stars {
-            font-size: 24px;
-            cursor: pointer;
-            color: #ccc;
-            margin: 5px 0;
-        }
+    .list-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
 
-        .stars span.selected {
-            color: gold;
-        }
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
+    }
 
-        .check-in {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-            margin-top: 5px;
-        }
+    .stars span.selected {
+      color: gold;
+    }
 
-        .btn-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+    .check-in {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
 
-        .btn {
-            background: #1E3A8A;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
+    .btn-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-        .btn:hover {
-            background: #152C5B;
-        }
-    </style>
+    .btn {
+      background: #1E3A8A;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #152C5B;
+    }
+  </style>
 </head>
 <body>
 
-    <header class="page-header">
-        <h1>Local Attractions</h1>
-    </header>
+  <header class="page-header">
+    <h1>Local Attractions</h1>
+  </header>
 
-    <section class="page-content">
-        <h2>Discover the Best Local Attractions</h2>
+  <section class="page-content">
+    <h2>Discover the Best Local Attractions</h2>
 
-        <div class="list-container" id="attractionsList"></div>
+    <!-- Sort dropdown -->
+    <div class="sort-section">
+      <label for="sortSelect">Sort by:</label>
+      <select id="sortSelect" onchange="sortAttractions()">
+        <option value="">-- Select --</option>
+        <option value="low">Price (Low to High)</option>
+        <option value="high">Price (High to Low)</option>
+      </select>
+    </div>
 
-        <div class="btn-container">
-            <a href="homepage.html" class="btn">Back to Homepage</a>
-        </div>
-    </section>
+    <div class="list-container" id="attractionsList"></div>
 
-    <script>
-        function loadAttractions() {
-            const selectedCity = localStorage.getItem("selectedCity");
-            const normalizedCity = selectedCity ? selectedCity.replace(/\s+/g, "_") : null;
+    <div class="btn-container">
+      <a href="homepage.html" class="btn">Back to Homepage</a>
+    </div>
+  </section>
 
-            if (!normalizedCity) {
-                alert("No city selected. Please select a city first.");
-                window.location.href = "select-city.html";
-                return;
-            }
+  <script>
+    let attractionArray = [];
 
-            let attractionsList = document.getElementById("attractionsList");
-            attractionsList.innerHTML = "";
+    function loadAttractions() {
+      const selectedCity = localStorage.getItem("selectedCity");
+      const normalizedCity = selectedCity ? selectedCity.split(" ").join("_") : null;
 
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
+      if (!normalizedCity) {
+        alert("No city selected. Please select a city first.");
+        window.location.href = "select-city.html";
+        return;
+      }
 
-                if (key.startsWith("attraction_" + normalizedCity + "_")) {
-                    const attraction = JSON.parse(localStorage.getItem(key));
-                    const savedRating = localStorage.getItem("rating_" + key) || 0;
-                    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+      let attractionsList = document.getElementById("attractionsList");
+      attractionsList.innerHTML = "";
 
-                    const item = document.createElement("div");
-                    item.classList.add("list-item");
+      attractionArray = [];
 
-                    let content = `
-                        📍 <strong>${attraction.name}</strong>
-                        <p><strong>City:</strong> ${attraction.city}</p>
-                        <p><strong>Description:</strong> ${attraction.description}</p>
-                        <div class="stars" data-key="${key}">
-                    `;
-                    for (let star = 1; star <= 5; star++) {
-                        content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-                    }
-                    content += `</div>
-                        <div class="check-in">
-                            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-                            <label for="checkin_${key}">Check In</label>
-                        </div>
-                    `;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
 
-                    item.innerHTML = content;
+        if (key.startsWith("attraction_" + normalizedCity + "_")) {
+          const attraction = JSON.parse(localStorage.getItem(key));
+          attraction.key = key;
+          attractionArray.push(attraction);
+        }
+      }
 
-                    const stars = item.querySelector(".stars");
-                    stars.addEventListener("click", function (event) {
-                        if (event.target.tagName === "SPAN") {
-                            const starValue = parseInt(event.target.getAttribute("data-star"));
-                            localStorage.setItem("rating_" + key, starValue);
-                            updateStarDisplay(stars, starValue);
-                        }
-                    });
+      displayAttractions(attractionArray);
+    }
 
-                    const checkinBox = item.querySelector(`#checkin_${key}`);
-                    checkinBox.addEventListener("change", function () {
-                        localStorage.setItem("checkedin_" + key, checkinBox.checked);
-                    });
+    function displayAttractions(list) {
+      const attractionsList = document.getElementById("attractionsList");
+      attractionsList.innerHTML = "";
 
-                    attractionsList.appendChild(item);
-                }
-            }
+      if (list.length === 0) {
+        attractionsList.innerHTML = "<p>No attractions available for this city.</p>";
+        return;
+      }
 
-            if (!attractionsList.hasChildNodes()) {
-                attractionsList.innerHTML = "<p>No attractions available for this city.</p>";
-            }
+      list.forEach(attraction => {
+        const key = attraction.key;
+        const savedRating = localStorage.getItem("rating_" + key) || 0;
+        const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+        const item = document.createElement("div");
+        item.classList.add("list-item");
+
+        let content = `
+          📍 <strong>${attraction.name}</strong>
+          <p><strong>City:</strong> ${attraction.city}</p>
+          <p><strong>Description:</strong> ${attraction.description}</p>
+          <p><strong>Fee:</strong> $${attraction.registrationFee}</p>
+          <div class="stars" data-key="${key}">
+        `;
+
+        for (let star = 1; star <= 5; star++) {
+          content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
         }
 
-        function updateStarDisplay(container, rating) {
-            Array.from(container.children).forEach(star => {
-                const val = parseInt(star.getAttribute("data-star"));
-                star.classList.toggle("selected", val <= rating);
-            });
-        }
+        content += `</div>
+          <div class="check-in">
+            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+            <label for="checkin_${key}">Check In</label>
+          </div>`;
 
-        window.onload = loadAttractions;
-    </script>
+        item.innerHTML = content;
+
+        const stars = item.querySelector(".stars");
+        stars.addEventListener("click", function (event) {
+          if (event.target.tagName === "SPAN") {
+            const starValue = parseInt(event.target.getAttribute("data-star"));
+            localStorage.setItem("rating_" + key, starValue);
+            updateStarDisplay(stars, starValue);
+          }
+        });
+
+        const checkinBox = item.querySelector(`#checkin_${key}`);
+        checkinBox.addEventListener("change", function () {
+          localStorage.setItem("checkedin_" + key, checkinBox.checked);
+        });
+
+        attractionsList.appendChild(item);
+      });
+    }
+
+    function updateStarDisplay(container, rating) {
+      Array.from(container.children).forEach(star => {
+        const val = parseInt(star.getAttribute("data-star"));
+        star.classList.toggle("selected", val <= rating);
+      });
+    }
+
+    function sortAttractions() {
+      const sortOption = document.getElementById("sortSelect").value;
+
+      if (sortOption === "low") {
+        attractionArray.sort(function (a, b) {
+          return a.registrationFee - b.registrationFee;
+        });
+      } else if (sortOption === "high") {
+        attractionArray.sort(function (a, b) {
+          return b.registrationFee - a.registrationFee;
+        });
+      }
+
+      displayAttractions(attractionArray);
+    }
+
+    window.onload = loadAttractions;
+  </script>
 
 </body>
 </html>

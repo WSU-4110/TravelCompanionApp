@@ -39,6 +39,16 @@
       width: 100%;
     }
 
+    .sort-section {
+      margin-bottom: 20px;
+    }
+
+    .sort-section select {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -95,6 +105,17 @@
 
     <section class="page-content">
       <h2>Find the Best Local Stores</h2>
+
+      <!-- Sort dropdown -->
+      <div class="sort-section">
+        <label for="sortSelect">Sort by:</label>
+        <select id="sortSelect" onchange="sortStores()">
+          <option value="">-- Select --</option>
+          <option value="low">Price (Lowest First)</option>
+          <option value="high">Price (Highest First)</option>
+        </select>
+      </div>
+
       <div class="list-container" id="businessList"></div>
 
       <div class="back-btn">
@@ -104,35 +125,25 @@
   </div>
 
   <script>
-    function displayBusinesses() {
+    let storeArray = [];
+
+    function getLowestProductPrice(products) {
+      const prices = products.map(p => parseFloat(p.price)).filter(price => !isNaN(price) && price > 0);
+      return prices.length > 0 ? Math.min(...prices) : Infinity;
+    }
+
+    function displayBusinesses(list) {
       const container = document.getElementById('businessList');
       container.innerHTML = '';
 
-      const selectedCity = localStorage.getItem('selectedCity');
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
+      if (list.length === 0) {
+        container.innerHTML = `<p style="color:white;">No stores registered for this city yet.</p>`;
         return;
       }
 
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      const stores = [];
+      list.forEach(store => {
+        const startingPrice = getLowestProductPrice(store.products);
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key.startsWith("store_" + normalizedCity + "_")) {
-          const store = JSON.parse(localStorage.getItem(key));
-          stores.push(store);
-        }
-      }
-
-      if (stores.length === 0) {
-        container.innerHTML = `<p style="color:white;">No stores registered for ${selectedCity} yet.</p>`;
-        return;
-      }
-
-      stores.forEach(store => {
         const card = document.createElement('div');
         card.className = 'list-item';
 
@@ -141,6 +152,7 @@
           <p><strong>City:</strong> ${store.city}</p>
           <p><strong>Address:</strong> ${store.address}</p>
           <p><strong>Description:</strong> ${store.description}</p>
+          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
           <h4>Products:</h4>
           <ul>
             ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
@@ -156,7 +168,41 @@
       });
     }
 
-    window.onload = displayBusinesses;
+    function sortStores() {
+      const sortValue = document.getElementById("sortSelect").value;
+
+      if (sortValue === "low") {
+        storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
+      } else if (sortValue === "high") {
+        storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
+      }
+
+      displayBusinesses(storeArray);
+    }
+
+    function loadStores() {
+      const selectedCity = localStorage.getItem('selectedCity');
+      if (!selectedCity) {
+        alert("No city selected. Please select a city.");
+        window.location.href = "select-city.html";
+        return;
+      }
+
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+      storeArray = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("store_" + normalizedCity + "_")) {
+          const store = JSON.parse(localStorage.getItem(key));
+          storeArray.push(store);
+        }
+      }
+
+      displayBusinesses(storeArray);
+    }
+
+    window.onload = loadStores;
   </script>
 
 </body>
