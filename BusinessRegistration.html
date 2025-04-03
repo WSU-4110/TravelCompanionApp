@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Business - Travel Companion</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .add-item-btn {
+            background: #28a745;
+        }
+        .add-item-btn:hover {
+            background: #218838;
+        }
+        .times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Register Your Business</h2>
+    <form id="businessForm" onsubmit="storeBusiness(); return false;">
+        <input type="text" id="businessName" placeholder="Business Name" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <input type="text" id="city" placeholder="City" required>
+        <input type="text" id="address" placeholder="Address" required>
+
+        <h4>Items for Sale</h4>
+        <div id="itemsContainer">
+            <div><input type="text" placeholder="Item Name"> <input type="number" placeholder="Price"></div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addItem()">+ Add Item</button>
+
+        <h4>Business Hours</h4>
+        <div class="times-grid">
+            <div>Mon: <input type="time"> to <input type="time"></div>
+            <div>Tue: <input type="time"> to <input type="time"></div>
+            <div>Wed: <input type="time"> to <input type="time"></div>
+            <div>Thu: <input type="time"> to <input type="time"></div>
+            <div>Fri: <input type="time"> to <input type="time"></div>
+            <div>Sat: <input type="time"> to <input type="time"></div>
+            <div>Sun: <input type="time"> to <input type="time"></div>
+        </div>
+
+        <button type="submit">Submit Business</button>
+    </form>
+</div>
+
+<script>
+function addItem() {
+    const itemsContainer = document.getElementById('itemsContainer');
+    const itemDiv = document.createElement('div');
+    itemDiv.innerHTML = `
+        <input type="text" placeholder="Item Name">
+        <input type="number" placeholder="Price">
+    `;
+    itemsContainer.appendChild(itemDiv);
+}
+
+function storeBusiness() {
+    const business = {
+        name: document.getElementById('businessName').value,
+        description: document.getElementById('description').value,
+        city: document.getElementById('city').value,
+        address: document.getElementById('address').value,
+        items: [],
+        hours: {}
+    };
+
+    const itemDivs = document.querySelectorAll('#itemsContainer div');
+    itemDivs.forEach(div => {
+        const itemname = div.children[0].value;
+        const itemprice = div.children[1].value;
+
+        if (itemname && itemprice) {
+            business.items.push({
+                name: itemname,
+                price: parseFloat(itemprice)
+            });
+        }
+    });
+
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const timeinp = document.querySelectorAll('.times-grid input');
+
+    for (let i = 0; i < days.length; i++) {
+        const openingtime = timeinp[i * 2].value;
+        const closingtime = timeinp[i * 2 + 1].value;
+
+        business.hours[days[i]] = {
+            open: openingtime,
+            close: closingtime
+        };
+    }
+
+    const key = 'business_' + Date.now();
+    localStorage.setItem(key, JSON.stringify(business));
+
+    alert('Business registered successfully!');
+
+    document.getElementById('businessForm').reset();
+    document.getElementById('itemsContainer').innerHTML = `
+        <div><input type="text" placeholder="Item Name"> <input type="number" placeholder="Price"></div>
+    `;
+}
+</script>
+
+</body>
+</html>

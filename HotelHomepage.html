@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Registered Hotels - Travel Companion</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f7f7f7;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 15px;
+        }
+        #hotelList {
+            width: 100%;
+            max-width: 1200px;
+        }
+        .hotel-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .details {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .back-btn a {
+            text-decoration: none;
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .stars {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .stars span.selected {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="back-btn">
+    <a href="hotel_registration.html">Register a New Hotel</a>
+</div>
+
+<h1>Registered Hotels</h1>
+<div id="hotelList"></div>
+
+<script>
+function displayHotels() {
+    const container = document.getElementById('hotelList');
+    container.innerHTML = '';
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+
+        if (key.startsWith('hotel_')) {
+            const hotel = JSON.parse(localStorage.getItem(key));
+            const savedRating = localStorage.getItem('rating_' + key) || 0;
+
+            const card = document.createElement('div');
+            card.className = 'hotel-card';
+
+            let content = '';
+            content += '<h3>' + hotel.name + '</h3>';
+            content += '<p><strong>City:</strong> ' + hotel.city + '</p>';
+            content += '<p><strong>Address:</strong> ' + hotel.address + '</p>';
+
+            content += '<div class="stars" data-key="' + key + '">';
+            for (let star = 1; star <= 5; star++) {
+                if (star <= savedRating) {
+                    content += '<span data-star="' + star + '" class="selected">&#9733;</span>';
+                } else {
+                    content += '<span data-star="' + star + '">&#9733;</span>';
+                }
+            }
+            content += '</div>';
+
+            content += '<div class="details" style="display: none;">';
+            content += '<p><strong>Description:</strong> ' + hotel.description + '</p>';
+
+            content += '<h4>Rooms & Prices:</h4><ul>';
+            hotel.rooms.forEach(function(room) {
+                content += '<li><strong>' + room.section + '</strong>: ';
+                content += room.type + ', ';
+                content += room.availableRooms + ' Available, ';
+                content += room.beds + ' Beds, ';
+                content += room.bathrooms + ' Bathrooms - $';
+                content += room.price + '/night</li>';
+            });
+            content += '</ul>';
+
+            content += '<h4>Business Hours:</h4><ul>';
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            days.forEach(function(day) {
+                const hours = hotel.hours[day] || { open: 'Closed', close: 'Closed' };
+                content += '<li>' + day + ': ' + hours.open + ' - ' + hours.close + '</li>';
+            });
+            content += '</ul>';
+
+            content += '</div>';
+
+            card.innerHTML = content;
+
+            card.onclick = function(event) {
+                const clickedelem = event.target;
+                const clickedinsidestar = clickedelem.classList.contains('stars') || clickedelem.parentElement.classList.contains('stars');
+
+                if (clickedinsidestar) {
+                    return;
+                }
+
+                const detailsec = card.querySelector('.details');
+
+                if (detailsec.style.display === 'none') {
+                    detailsec.style.display = 'block';
+                } else {
+                    detailsec.style.display = 'none';
+                }
+            };
+
+            const starcontainer = card.querySelector('.stars');
+
+            starcontainer.onclick = function(event) {
+                const clickedelem = event.target;
+
+                if (clickedelem.tagName === 'SPAN') {
+                    const starValue = parseInt(clickedelem.getAttribute('data-star'));
+
+                    localStorage.setItem('rating_' + key, starValue);
+
+                    updatestardisp(starcontainer, starValue);
+                }
+            };
+
+            container.appendChild(card);
+        }
+    }
+}
+
+function updatestardisp(starsContainer, rating) {
+    Array.from(starsContainer.children).forEach(star => {
+        star.classList.toggle('selected', parseInt(star.getAttribute('data-star')) <= rating);
+    });
+}
+
+window.onload = displayHotels;
+</script>
+
+</body>
+</html>

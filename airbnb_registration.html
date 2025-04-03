@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register Your Airbnb - Travel Companion</title>
+  <style>
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .add-item-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .times-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .times-grid label {
+      font-weight: bold;
+      color: #1E3A8A;
+      display: block;
+    }
+
+    .times-grid input {
+      width: 100%;
+      padding: 5px;
+    }
+
+    .btn {
+      padding: 12px;
+      background: #1E3A8A;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      background: #152C5B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Register Your Airbnb</h1>
+
+    <form id="airbnbForm" onsubmit="storeAirbnb(); return false;">
+      <input type="text" id="airbnbName" placeholder="Airbnb Name" required>
+      <textarea id="description" placeholder="Description" required></textarea>
+      <input type="text" id="city" placeholder="City" readonly>
+      <input type="text" id="address" placeholder="Address" required>
+
+      <h4>Rental Listings</h4>
+      <div id="listingsContainer">
+        <div>
+          <input type="text" placeholder="Listing Name">
+          <input type="number" placeholder="Available Units">
+          <input type="number" placeholder="Price per Night ($)">
+          <input type="number" placeholder="Beds">
+          <input type="number" placeholder="Bathrooms">
+        </div>
+      </div>
+      <button type="button" class="add-item-btn" onclick="addListing()">+ Add Listing</button>
+
+      <h4>Operating Hours</h4>
+      <div class="times-grid">
+        <label>Monday: <input type="time"> to <input type="time"></label>
+        <label>Tuesday: <input type="time"> to <input type="time"></label>
+        <label>Wednesday: <input type="time"> to <input type="time"></label>
+        <label>Thursday: <input type="time"> to <input type="time"></label>
+        <label>Friday: <input type="time"> to <input type="time"></label>
+        <label>Saturday: <input type="time"> to <input type="time"></label>
+        <label>Sunday: <input type="time"> to <input type="time"></label>
+      </div>
+
+      <button type="submit" class="btn">Submit Airbnb</button>
+    </form>
+  </div>
+
+  <script>
+    window.onload = function () {
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) {
+        alert("Please select a city before registering.");
+        window.location.href = "select-city.html";
+      } else {
+        document.getElementById("city").value = selectedCity;
+      }
+    };
+
+    function addListing() {
+      const container = document.getElementById('listingsContainer');
+      const itemDiv = document.createElement('div');
+      itemDiv.innerHTML = `
+        <input type="text" placeholder="Listing Name">
+        <input type="number" placeholder="Available Units">
+        <input type="number" placeholder="Price per Night ($)">
+        <input type="number" placeholder="Beds">
+        <input type="number" placeholder="Bathrooms">
+      `;
+      container.appendChild(itemDiv);
+    }
+
+    function storeAirbnb() {
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) {
+        alert("City is required.");
+        return;
+      }
+
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+
+      const airbnb = {
+        name: document.getElementById("airbnbName").value,
+        description: document.getElementById("description").value,
+        city: selectedCity,
+        address: document.getElementById("address").value,
+        listings: [],
+        hours: {}
+      };
+
+      const listingDivs = document.querySelectorAll('#listingsContainer div');
+      listingDivs.forEach(div => {
+        const name = div.children[0].value;
+        const availableUnits = parseInt(div.children[1].value) || 0;
+        const price = parseFloat(div.children[2].value) || 0;
+        const beds = parseInt(div.children[3].value) || 0;
+        const bathrooms = parseInt(div.children[4].value) || 0;
+
+        if (name && price) {
+          airbnb.listings.push({ name, availableUnits, price, beds, bathrooms });
+        }
+      });
+
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const timeInputs = document.querySelectorAll(".times-grid input");
+      for (let i = 0; i < days.length; i++) {
+        airbnb.hours[days[i]] = {
+          open: timeInputs[i * 2].value,
+          close: timeInputs[i * 2 + 1].value
+        };
+      }
+
+      const key = "airbnb_" + normalizedCity + "_" + Date.now();
+      localStorage.setItem(key, JSON.stringify(airbnb));
+
+      alert("Airbnb registered successfully!");
+      document.getElementById("airbnbForm").reset();
+      document.getElementById("listingsContainer").innerHTML = `
+        <div>
+          <input type="text" placeholder="Listing Name">
+          <input type="number" placeholder="Available Units">
+          <input type="number" placeholder="Price per Night ($)">
+          <input type="number" placeholder="Beds">
+          <input type="number" placeholder="Bathrooms">
+        </div>
+      `;
+      window.location.href = "airbnb.html";
+    }
+  </script>
+
+</body>
+</html>

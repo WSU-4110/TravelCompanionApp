@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register Your Hotel - Travel Companion</title>
+  <style>
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      text-align: center;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .add-item-btn {
+      background-color: #28a745;
+      margin-bottom: 10px;
+    }
+
+    .times-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .times-grid input {
+      width: 100%;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Register Your Hotel</h2>
+    <form id="hotelForm" onsubmit="storeHotel(); return false;">
+      <input type="text" id="hotelName" placeholder="Hotel Name" required>
+      <textarea id="description" placeholder="Description" required></textarea>
+      <input type="text" id="city" placeholder="City" readonly>
+      <input type="text" id="address" placeholder="Address" required>
+
+      <h4>Rooms & Pricing</h4>
+      <div id="roomContainer">
+        <div>
+          <input type="text" placeholder="Room Type">
+          <input type="number" placeholder="Price per Night">
+        </div>
+      </div>
+      <button type="button" class="add-item-btn" onclick="addRoom()">+ Add Room</button>
+
+      <h4>Operating Hours (Check-in / Check-out)</h4>
+      <div class="times-grid">
+        <label>Mon: <input type="time"> to <input type="time"></label>
+        <label>Tue: <input type="time"> to <input type="time"></label>
+        <label>Wed: <input type="time"> to <input type="time"></label>
+        <label>Thu: <input type="time"> to <input type="time"></label>
+        <label>Fri: <input type="time"> to <input type="time"></label>
+        <label>Sat: <input type="time"> to <input type="time"></label>
+        <label>Sun: <input type="time"> to <input type="time"></label>
+      </div>
+
+      <button type="submit">Submit Hotel</button>
+    </form>
+  </div>
+
+  <script>
+    window.onload = function () {
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) {
+        alert("Please select a city before registering.");
+        window.location.href = "select-city.html";
+      } else {
+        document.getElementById("city").value = selectedCity;
+      }
+    };
+
+    function addRoom() {
+      const container = document.getElementById("roomContainer");
+      const roomDiv = document.createElement("div");
+      roomDiv.innerHTML = `
+        <input type="text" placeholder="Room Type">
+        <input type="number" placeholder="Price per Night">
+      `;
+      container.appendChild(roomDiv);
+    }
+
+    function storeHotel() {
+      const selectedCity = localStorage.getItem("selectedCity");
+      if (!selectedCity) {
+        alert("Please select a city before registering.");
+        return;
+      }
+
+      const normalizedCity = selectedCity.replace(/\s+/g, "_");
+
+      const hotel = {
+        name: document.getElementById("hotelName").value,
+        description: document.getElementById("description").value,
+        city: selectedCity,
+        address: document.getElementById("address").value,
+        rooms: [],
+        hours: {}
+      };
+
+      const roomDivs = document.querySelectorAll("#roomContainer div");
+      roomDivs.forEach(div => {
+        const type = div.children[0].value;
+        const price = div.children[1].value;
+        if (type && price) {
+          hotel.rooms.push({ type, price: parseFloat(price) });
+        }
+      });
+
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const timeInputs = document.querySelectorAll(".times-grid input");
+      for (let i = 0; i < days.length; i++) {
+        hotel.hours[days[i]] = {
+          open: timeInputs[i * 2].value,
+          close: timeInputs[i * 2 + 1].value
+        };
+      }
+
+      const key = "hotel_" + normalizedCity + "_" + Date.now();
+      localStorage.setItem(key, JSON.stringify(hotel));
+
+      alert("Hotel registered successfully!");
+      document.getElementById("hotelForm").reset();
+      document.getElementById("roomContainer").innerHTML = `
+        <div>
+          <input type="text" placeholder="Room Type">
+          <input type="number" placeholder="Price per Night">
+        </div>
+      `;
+      window.location.href = "hotels.html";
+    }
+  </script>
+
+</body>
+</html>
