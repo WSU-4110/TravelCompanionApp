@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Advertisement - Travel Companion</title>
+    <style>
+        body {
+            background: url('images/hero-image.jpg') no-repeat center center/cover;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px;
+            background: #1E3A8A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: #152C5B;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Submit an Advertisement</h2>
+    <form id="adForm" onsubmit="submitAd(); return false;">
+        <input type="text" id="companyName" placeholder="Company Name" required>
+        <textarea id="adDescription" placeholder="Advertisement Description" required></textarea>
+        <input type="text" id="adLocation" placeholder="Advertisement Location" required>
+        <input type="text" id="city" readonly>
+        <button type="submit" class="btn">Submit Advertisement</button>
+    </form>
+</div>
+
+<script>
+    window.onload = function () {
+        const selectedCity = localStorage.getItem('selectedCity');
+        if (!selectedCity) {
+            alert("Please select a city before submitting an advertisement.");
+            window.location.href = "select-city.html";
+            return;
+        }
+        document.getElementById("city").value = selectedCity;
+    };
+
+    function submitAd() {
+        const city = localStorage.getItem('selectedCity');
+        const normalizedCity = city.replace(/\s+/g, "_");
+
+        const ad = {
+            company: document.getElementById('companyName').value,
+            description: document.getElementById('adDescription').value,
+            location: document.getElementById('adLocation').value,
+            city: city,
+            timestamp: Date.now()
+        };
+
+        const key = "ads_" + normalizedCity;
+        const ads = JSON.parse(localStorage.getItem(key)) || [];
+        ads.push(ad);
+        localStorage.setItem(key, JSON.stringify(ads));
+
+        alert("Advertisement submitted successfully!");
+        document.getElementById("adForm").reset();
+        window.location.href = "homepage.html";
+    }
+</script>
+
+</body>
+</html>
