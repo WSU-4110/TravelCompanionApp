@@ -1,5 +1,4 @@
 # TravelCompanionApp
-# Travel Companion App
 
 Simplifying travel experiences with all-in-one solutions.
 
