@@ -177,6 +177,9 @@
         <a href="Stores.html">Stores</a>
     </div>
 
+    <div id="latestAd" style="margin: 30px auto; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; max-width: 600px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+    </div>
+
     <div class="logout-container">
         <button onclick="logout()">Logout</button>
     </div>
@@ -189,29 +192,56 @@
             localStorage.removeItem("selectedCity");
             window.location.href = "login.html";
         }
-
+    
         function changeCity() {
             localStorage.removeItem("selectedCity");
             window.location.href = "select-city.html";
         }
-
+    
         window.onload = function () {
-            let user = JSON.parse(localStorage.getItem("loggedInUser"));
-            let selectedCity = localStorage.getItem("selectedCity");
-
+            const user = JSON.parse(localStorage.getItem("loggedInUser"));
+            const selectedCity = localStorage.getItem("selectedCity");
+    
             if (!user) {
                 window.location.href = "login.html";
-            } else {
-                document.getElementById("usernameDisplay").innerText = user.username;
+                return;
             }
-
+    
             if (!selectedCity) {
                 window.location.href = "select-city.html";
-            } else {
-                document.getElementById("cityDisplay").innerText = `🌍 ${selectedCity}`;
+                return;
             }
+    
+            document.getElementById("usernameDisplay").innerText = user.username;
+            document.getElementById("cityDisplay").innerText = `🌍 ${selectedCity}`;
+    
+            const adKey = "ads_" + selectedCity.replace(/\s+/g, "_");
+            const ads = JSON.parse(localStorage.getItem(adKey)) || [];
+            let adIndex = 0;
+    
+            function displayAd() {
+                const latestAdContainer = document.getElementById("latestAd");
+    
+                if (ads.length === 0) {
+                    latestAdContainer.innerHTML = "<h3>No advertisements yet for this city.</h3>";
+                    return;
+                }
+    
+                const ad = ads[adIndex];
+                latestAdContainer.innerHTML = `
+                    <h3> ${ad.company}</h3>
+                    <p>${ad.description}</p>
+                    <p><em>📍 ${ad.location}</em></p>
+                `;
+    
+                adIndex = (adIndex + 1) % ads.length;
+            }
+    
+            displayAd();
+            setInterval(displayAd, 5000);
         };
     </script>
+    
 
 </body>
 </html>
