@@ -26,10 +26,10 @@ To run the app properly and load the CSV file:
    **"Open With Live Server**"
 ---
 ##Optional Access with Python:
-1
+** 1.Navigate to the project foler**
 -cd TravelCompanionApp
 -python -m http.server
-2.
+** 2. Start the server **
 -http://localhost:8000/login.html
 ---
 ##Optional Access using NodeJs:
