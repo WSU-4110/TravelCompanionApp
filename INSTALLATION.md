@@ -17,12 +17,15 @@ To run the app properly and load the CSV file:
    - Open VS Code
    - Go to the Extensions tab
    - Search for **Live Server** and install it.
+     
+**3. Clone the Repository**:
+- git clone https://github.com/WSU-4110/TravelCompanionApp.git
 
-**3. Open the project folder** in VS Code:
+**4. Open the project folder** in VS Code:
    - cd TravelCompanionApp
    - code .
 
-**4. Go to login.html and select:**
+**5. Go to login.html and select:**
    - "Open With Live Server"
 ---
 ## Optional Access with Python
@@ -41,7 +44,7 @@ To run the app properly and load the CSV file:
 
 - npm install -g serve
 
-4. Navigate to the project folder:
+3. Navigate to the project folder:
 
 - cd TravelCompanionApp
 
