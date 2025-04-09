@@ -22,15 +22,15 @@ To run the app properly and load the CSV file:
    cd TravelCompanionApp
    code .
 
-**4. Go to login.html and select:
+**4. Go to login.html and select:**
    **"Open With Live Server**"
 ---
 ##Optional Access with Python:
-1.
-cd TravelCompanionApp
-python -m http.server
+1
+-cd TravelCompanionApp
+-python -m http.server
 2.
-http://localhost:8000/login.html
+-http://localhost:8000/login.html
 ---
 ##Optional Access using NodeJs:
 **1. Install Node.js:**
