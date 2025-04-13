@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airbnb - Travel Companion</title>
   <style>
     body {
@@ -43,16 +44,6 @@
       width: 100%;
     }
 
-    .sort-section {
-      margin-bottom: 20px;
-    }
-
-    .sort-section select {
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -71,13 +62,6 @@
       text-align: left;
       font-size: 16px;
       color: #333;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .list-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
 
     .stars {
@@ -99,13 +83,6 @@
       margin-top: 5px;
     }
 
-    .btn-container {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
     .btn {
       background: #1E3A8A;
       color: white;
@@ -113,156 +90,202 @@
       border-radius: 8px;
       text-decoration: none;
       font-size: 16px;
-      transition: background 0.3s;
+      margin-top: 10px;
+      display: inline-block;
     }
 
-    .btn:hover {
-      background: #152C5B;
+    .sort-section {
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .sort-section select {
+      padding: 8px 32px 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: #fff;
+      color: #333;
+      border: none;
+    }
+
+    .sort-section::after {
+      content: "▼";
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      color: #333;
+      pointer-events: none;
+      font-size: 12px;
     }
   </style>
 </head>
+
 <body>
 
-  <header class="page-header">
-    <h1>Airbnb</h1>
-  </header>
+<header class="page-header">
+  <h1>Airbnb</h1>
+</header>
 
-  <section class="page-content">
-    <h2>Find the Best Airbnb</h2>
+<section class="page-content">
 
-    <!-- Sort dropdown -->
-    <div class="sort-section">
-      <label for="sortSelect">Sort by:</label>
-      <select id="sortSelect" onchange="sortAirbnbs()">
-        <option value="">-- Select --</option>
-        <option value="low">Price (Low to High)</option>
-        <option value="high">Price (High to Low)</option>
-        <option value="ratingHigh">Rating (High to Low)</option>
-        <option value="ratingLow">Rating (Low to High)</option>
-      </select>
-    </div>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortAirbnbs()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Lowest)</option>
+      <option value="high">Price (Highest)</option>
+      <option value="ratingHigh">Rating (High to Low)</option>
+      <option value="ratingLow">Rating (Low to High)</option>
+    </select>
+  </div>
 
-    <div class="list-container" id="airbnbList"></div>
+  <div class="list-container" id="airbnbList"></div>
 
-    <div class="btn-container">
-      <a href="homepage.html" class="btn">Back to Homepage</a>
-    </div>
-  </section>
+  <a href="homepage.html" class="btn">Back to Homepage</a>
 
-  <script>
-    let airbnbArray = [];
+</section>
 
-    function loadAirbnbs() {
-      const airbnbList = document.getElementById("airbnbList");
-      airbnbList.innerHTML = "";
+<script>
+let airbnbArray = [];
 
-      const selectedCity = localStorage.getItem("selectedCity");
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
-        return;
+function loadAirbnbs() {
+  const airbnbList = document.getElementById('airbnbList');
+  airbnbList.innerHTML = "";
+
+  const selectedCity = localStorage.getItem("selectedCity");
+  if (!selectedCity) {
+    alert("No city selected. Please select a city first.");
+    window.location.href = "select-city.html";
+    return;
+  }
+
+  const normalizedCity = selectedCity.replace(/\s+/g, "_");
+  airbnbArray = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("airbnb_" + normalizedCity + "_")) {
+      const airbnb = JSON.parse(localStorage.getItem(key));
+      airbnb.key = key;
+      airbnb.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+      airbnbArray.push(airbnb);
+    }
+  }
+
+  displayAirbnbs(airbnbArray);
+}
+
+function getLowestListingPrice(listings) {
+  const prices = listings.map(l => parseFloat(l.price)).filter(p => !isNaN(p) && p > 0);
+  return prices.length > 0 ? Math.min(...prices) : Infinity;
+}
+
+function displayAirbnbs(list) {
+  const airbnbList = document.getElementById('airbnbList');
+  airbnbList.innerHTML = "";
+
+  list.forEach(airbnb => {
+    const key = airbnb.key;
+    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+    const item = document.createElement("div");
+    item.classList.add("list-item");
+
+    let content = `
+      <strong>${airbnb.name}</strong>
+      <p><strong>City:</strong> ${airbnb.city}</p>
+      <p><strong>Address:</strong> ${airbnb.address}</p>
+      <p><strong>Description:</strong> ${airbnb.description}</p>
+      <p><strong>Starting From:</strong> $${getLowestListingPrice(airbnb.listings) === Infinity ? "N/A" : getLowestListingPrice(airbnb.listings)}</p>
+      <div class="stars" data-key="${key}">`;
+
+    for (let s = 1; s <= 5; s++) {
+      content += `<span data-star="${s}" ${s <= airbnb.rating ? 'class="selected"' : ''}>&#9733;</span>`;
+    }
+
+    content += `</div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+        <label for="checkin_${key}">Check In</label>
+      </div>
+      ${airbnb.hours ? `
+      <h4>Business Hours:</h4>
+      <ul>
+        ${Object.entries(airbnb.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
+      </ul>` : ''}
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
+      </div>
+      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+    `;
+
+    item.innerHTML = content;
+
+    const starContainer = item.querySelector('.stars');
+    starContainer.addEventListener('click', function (event) {
+      if (event.target.tagName === 'SPAN') {
+        const starValue = parseInt(event.target.getAttribute('data-star'));
+        localStorage.setItem('rating_' + key, starValue);
+        airbnb.rating = starValue;
+        updateStarDisplay(starContainer, starValue);
       }
+    });
 
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      airbnbArray = [];
+    const checkinBox = item.querySelector(`#checkin_${key}`);
+    checkinBox.addEventListener('change', function () {
+      localStorage.setItem('checkedin_' + key, checkinBox.checked);
+    });
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith("airbnb_" + normalizedCity + "_")) {
-          const airbnb = JSON.parse(localStorage.getItem(key));
-          airbnb.key = key;
-          airbnb.rating = parseFloat(localStorage.getItem("rating_" + key)) || 0;
-          airbnbArray.push(airbnb);
-        }
-      }
+    airbnbList.appendChild(item);
+  });
+}
 
-      displayAirbnbs(airbnbArray);
-    }
+function updateStarDisplay(container, rating) {
+  Array.from(container.children).forEach(star => {
+    const starNumber = parseInt(star.getAttribute('data-star'));
+    star.classList.toggle('selected', starNumber <= rating);
+  });
+}
 
-    function getLowestListingPrice(listings) {
-      let prices = listings.map(l => parseFloat(l.price)).filter(p => !isNaN(p) && p > 0);
-      return prices.length > 0 ? Math.min(...prices) : Infinity;
-    }
+function sortAirbnbs() {
+  const sortVal = document.getElementById("sortSelect").value;
 
-    function displayAirbnbs(list) {
-      const airbnbList = document.getElementById("airbnbList");
-      airbnbList.innerHTML = "";
+  if (sortVal === "low") {
+    airbnbArray.sort((a, b) => getLowestListingPrice(a.listings) - getLowestListingPrice(b.listings));
+  } else if (sortVal === "high") {
+    airbnbArray.sort((a, b) => getLowestListingPrice(b.listings) - getLowestListingPrice(a.listings));
+  } else if (sortVal === "ratingHigh") {
+    airbnbArray.sort((a, b) => b.rating - a.rating);
+  } else if (sortVal === "ratingLow") {
+    airbnbArray.sort((a, b) => a.rating - b.rating);
+  }
 
-      list.forEach(airbnb => {
-        const key = airbnb.key;
-        const savedRating = airbnb.rating;
-        const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
-        const startingPrice = getLowestListingPrice(airbnb.listings);
+  displayAirbnbs(airbnbArray);
+}
 
-        const item = document.createElement("div");
-        item.classList.add("list-item");
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
 
-        let content = `
-          🏠 <strong>${airbnb.name}</strong>
-          <p><strong>City:</strong> ${airbnb.city}</p>
-          <p><strong>Address:</strong> ${airbnb.address}</p>
-          <p><strong>Description:</strong> ${airbnb.description}</p>
-          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
-          <div class="stars" data-key="${key}">
-        `;
+  if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
 
-        for (let s = 1; s <= 5; s++) {
-          content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-        }
+window.onload = loadAirbnbs;
+</script>
 
-        content += `</div>
-          <div class="check-in">
-            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-            <label for="checkin_${key}">Check In</label>
-          </div>
-        `;
-
-        item.innerHTML = content;
-
-        const starContainer = item.querySelector(".stars");
-        starContainer.addEventListener("click", function (event) {
-          if (event.target.tagName === "SPAN") {
-            const starValue = parseInt(event.target.getAttribute("data-star"));
-            localStorage.setItem("rating_" + key, starValue);
-            airbnb.rating = starValue;
-            updateStarDisplay(starContainer, starValue);
-          }
-        });
-
-        const checkinBox = item.querySelector(`#checkin_${key}`);
-        checkinBox.addEventListener("change", function () {
-          localStorage.setItem("checkedin_" + key, checkinBox.checked);
-        });
-
-        airbnbList.appendChild(item);
-      });
-    }
-
-    function sortAirbnbs() {
-      const sortOption = document.getElementById("sortSelect").value;
-
-      if (sortOption === "low") {
-        airbnbArray.sort((a, b) => getLowestListingPrice(a.listings) - getLowestListingPrice(b.listings));
-      } else if (sortOption === "high") {
-        airbnbArray.sort((a, b) => getLowestListingPrice(b.listings) - getLowestListingPrice(a.listings));
-      } else if (sortOption === "ratingHigh") {
-        airbnbArray.sort((a, b) => b.rating - a.rating);
-      } else if (sortOption === "ratingLow") {
-        airbnbArray.sort((a, b) => a.rating - b.rating);
-      }
-
-      displayAirbnbs(airbnbArray);
-    }
-
-    function updateStarDisplay(starsContainer, rating) {
-      Array.from(starsContainer.children).forEach(star => {
-        const starNumber = parseInt(star.getAttribute("data-star"));
-        star.classList.toggle("selected", starNumber <= rating);
-      });
-    }
-
-    window.onload = loadAirbnbs;
-  </script>
+<script src="chat.js"></script>
 
 </body>
 </html>
