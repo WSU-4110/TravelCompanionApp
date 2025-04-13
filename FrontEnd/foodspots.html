@@ -18,7 +18,7 @@
 
     .header {
       width: 100%;
-      background: #007bff;
+      background: #1E3A8A;
       color: white;
       padding: 15px;
       font-size: 24px;
@@ -27,6 +27,7 @@
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 1000;
     }
 
     .content {
@@ -37,39 +38,54 @@
 
     .food-list {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 15px;
       margin-top: 20px;
     }
 
     .food-item {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      width: 80%;
-      max-width: 500px;
+      width: 300px;
       text-align: left;
+      color: #333;
     }
 
-    .back-btn {
-      margin-top: 20px;
-      text-align: center;
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
     }
 
-    .back-btn a {
-      background: #007bff;
+    .stars span.selected {
+      color: gold;
+    }
+
+    .check-in {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .btn {
+      background: #1E3A8A;
       color: white;
-      padding: 12px 20px;
+      padding: 10px 20px;
       border-radius: 8px;
       text-decoration: none;
       font-size: 16px;
-      transition: background 0.3s;
+      display: inline-block;
+      margin-top: 10px;
     }
 
-    .back-btn a:hover {
-      background: #003f7f;
+    .btn:hover {
+      background: #152C5B;
     }
 
     .sort-section {
@@ -83,77 +99,134 @@
     }
   </style>
 </head>
+
 <body>
 
-  <div class="header">Food Spots</div>
+<div class="header">Food Spots</div>
 
-  <div class="content">
-    <h2>Explore the Best Food Spots</h2>
+<div class="content">
+  <h2>Explore the Best Food Spots</h2>
 
-    <!-- Sorting dropdown -->
-    <div class="sort-section">
-      <label for="sortSelect">Sort by:</label>
-      <select id="sortSelect" onchange="sortFoodSpots()">
-        <option value="">-- Select --</option>
-        <option value="low">Price (Low to High)</option>
-        <option value="high">Price (High to Low)</option>
-      </select>
-    </div>
-
-    <!-- Food list -->
-    <div class="food-list" id="foodList"></div>
-
-    <!-- Back button -->
-    <div class="back-btn">
-      <a href="homepage.html">Back to Homepage</a>
-    </div>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortFoodSpots()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Low to High)</option>
+      <option value="high">Price (High to Low)</option>
+    </select>
   </div>
 
-  <script>
-    let foodSpots = [];
+  <div class="food-list" id="foodList"></div>
 
-    function loadFoodSpots() {
-      foodSpots = JSON.parse(localStorage.getItem("foodSpots")) || [];
-      displayFoodSpots(foodSpots);
+  <div class="btn-container">
+    <a href="homepage.html" class="btn">Back to Homepage</a>
+  </div>
+</div>
+
+<script>
+let foodSpots = [];
+
+function loadFoodSpots() {
+  foodSpots = JSON.parse(localStorage.getItem("foodSpots")) || [];
+  displayFoodSpots(foodSpots);
+}
+
+function displayFoodSpots(spots) {
+  const foodList = document.getElementById("foodList");
+  foodList.innerHTML = "";
+
+  if (spots.length === 0) {
+    foodList.innerHTML = "<p>No food spots available.</p>";
+    return;
+  }
+
+  spots.forEach(food => {
+    const savedRating = localStorage.getItem("rating_" + food.name) || 0;
+    const isCheckedIn = localStorage.getItem("checkedin_" + food.name) === "true";
+
+    const item = document.createElement("div");
+    item.className = "food-item";
+
+    let content = `
+      🍽️ <strong>${food.name}</strong>
+      <p>📍 Location: ${food.location}</p>
+      <p>📞 Contact: ${food.contact}</p>
+      <p>💵 Price: $${food.price}</p>
+      <div class="stars" data-key="${food.name}">
+    `;
+
+    for (let s = 1; s <= 5; s++) {
+      content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
     }
 
-    function displayFoodSpots(spots) {
-      const foodList = document.getElementById("foodList");
+    content += `</div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${food.name}" ${isCheckedIn ? "checked" : ""}>
+        <label for="checkin_${food.name}">Check In</label>
+      </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${food.name}', this)" class="btn">Comments</button>
+      </div>
+      <div id="chatbox_${food.name}" style="display:none; margin-top: 10px;"></div>
+    `;
 
-      if (spots.length === 0) {
-        foodList.innerHTML = "<p>No food spots available.</p>";
-        return;
+    item.innerHTML = content;
+
+    const starsContainer = item.querySelector(".stars");
+    starsContainer.addEventListener("click", function(event) {
+      if (event.target.tagName === "SPAN") {
+        const starValue = parseInt(event.target.getAttribute("data-star"));
+        localStorage.setItem("rating_" + food.name, starValue);
+        updateStarDisplay(starsContainer, starValue);
       }
+    });
 
-      foodList.innerHTML = spots.map(function (food) {
-        return `
-          <div class="food-item">
-            🍽️ <strong>${food.name}</strong>
-            <p>📍 Location: ${food.location}</p>
-            <p>📞 Contact: ${food.contact}</p>
-            <p>💵 Price: $${food.price}</p>
-          </div>
-        `;
-      }).join("");
-    }
+    const checkinBox = item.querySelector(`#checkin_${food.name}`);
+    checkinBox.addEventListener("change", function() {
+      localStorage.setItem("checkedin_" + food.name, checkinBox.checked);
+    });
 
-    function sortFoodSpots() {
-      const sortOption = document.getElementById("sortSelect").value;
+    foodList.appendChild(item);
+  });
+}
 
-      if (sortOption === "low") {
-        foodSpots.sort(function (a, b) {
-          return parseFloat(a.price) - parseFloat(b.price);
-        });
-      } else if (sortOption === "high") {
-        foodSpots.sort(function (a, b) {
-          return parseFloat(b.price) - parseFloat(a.price);
-        });
-      }
+function updateStarDisplay(container, rating) {
+  Array.from(container.children).forEach(star => {
+    const starValue = parseInt(star.getAttribute("data-star"));
+    star.classList.toggle("selected", starValue <= rating);
+  });
+}
 
-      displayFoodSpots(foodSpots);
-    }
+function sortFoodSpots() {
+  const sortOption = document.getElementById("sortSelect").value;
 
-    window.onload = loadFoodSpots;
-  </script>
+  if (sortOption === "low") {
+    foodSpots.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  } else if (sortOption === "high") {
+    foodSpots.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+  }
+
+  displayFoodSpots(foodSpots);
+}
+
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
+
+  if (chatContainer.style.display === "none") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
+
+window.onload = loadFoodSpots;
+</script>
+
+<script src="chat.js"></script>
+
 </body>
 </html>

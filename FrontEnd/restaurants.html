@@ -121,142 +121,163 @@
     }
   </style>
 </head>
+
 <body>
 
-  <header class="page-header">
-    <h1>Restaurants</h1>
-  </header>
+<header class="page-header">
+  <h1>Restaurants</h1>
+</header>
 
-  <section class="page-content">
-    <h2>Find the Best Restaurants</h2>
+<section class="page-content">
+  <h2>Find the Best Restaurants</h2>
 
-    <!-- Sort dropdown -->
-    <div class="sort-section">
-      <label for="sortSelect">Sort by:</label>
-      <select id="sortSelect" onchange="sortRestaurants()">
-        <option value="">-- Select --</option>
-        <option value="low">Price (Lowest First)</option>
-        <option value="high">Price (Highest First)</option>
-      </select>
-    </div>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortRestaurants()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Lowest First)</option>
+      <option value="high">Price (Highest First)</option>
+    </select>
+  </div>
 
-    <div class="list-container" id="restaurantList"></div>
+  <div class="list-container" id="restaurantList"></div>
 
-    <div class="btn-container">
-      <a href="homepage.html" class="btn">Back to Homepage</a>
-    </div>
-  </section>
+  <div class="btn-container">
+    <a href="homepage.html" class="btn">Back to Homepage</a>
+  </div>
 
-  <script>
-    let restaurantArray = [];
+</section>
 
-    function loadRestaurants() {
-      const restaurantList = document.getElementById("restaurantList");
-      restaurantList.innerHTML = "";
+<script>
+let restaurantArray = [];
 
-      const selectedCity = localStorage.getItem("selectedCity");
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
-        return;
+function loadRestaurants() {
+  const restaurantList = document.getElementById("restaurantList");
+  restaurantList.innerHTML = "";
+
+  const selectedCity = localStorage.getItem("selectedCity");
+  if (!selectedCity) {
+    alert("No city selected. Please select a city.");
+    window.location.href = "select-city.html";
+    return;
+  }
+
+  const normalizedCity = selectedCity.replace(/\s+/g, "_");
+  restaurantArray = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    if (key.startsWith("restaurant_" + normalizedCity + "_")) {
+      const restaurant = JSON.parse(localStorage.getItem(key));
+      restaurant.key = key;
+      restaurantArray.push(restaurant);
+    }
+  }
+
+  displayRestaurants(restaurantArray);
+}
+
+function getLowestMenuPrice(menu) {
+  const prices = menu.map(item => parseFloat(item.price)).filter(p => !isNaN(p) && p > 0);
+  return prices.length > 0 ? Math.min(...prices) : Infinity;
+}
+
+function displayRestaurants(list) {
+  const restaurantList = document.getElementById("restaurantList");
+  restaurantList.innerHTML = "";
+
+  list.forEach(restaurant => {
+    const key = restaurant.key;
+    const savedRating = localStorage.getItem("rating_" + key) || 0;
+    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+    const startingPrice = getLowestMenuPrice(restaurant.menu);
+
+    const item = document.createElement("div");
+    item.classList.add("list-item");
+
+    let content = `
+      🍽️ <strong>${restaurant.name}</strong>
+      <p><strong>City:</strong> ${restaurant.city}</p>
+      <p><strong>Address:</strong> ${restaurant.address}</p>
+      <p><strong>Description:</strong> ${restaurant.description}</p>
+      <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
+      <div class="stars" data-key="${key}">
+    `;
+
+    for (let s = 1; s <= 5; s++) {
+      content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
+    }
+
+    content += `
+      </div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+        <label for="checkin_${key}">Check In</label>
+      </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${key}', this)" class="btn" style="padding: 8px 16px;">Comments</button>
+      </div>
+      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+    `;
+
+    item.innerHTML = content;
+
+    const starContainer = item.querySelector(".stars");
+    starContainer.addEventListener("click", function (event) {
+      if (event.target.tagName === "SPAN") {
+        const starValue = parseInt(event.target.getAttribute("data-star"));
+        localStorage.setItem("rating_" + key, starValue);
+        updateStarDisplay(starContainer, starValue);
       }
+    });
 
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      restaurantArray = [];
+    const checkinBox = item.querySelector(`#checkin_${key}`);
+    checkinBox.addEventListener("change", function () {
+      localStorage.setItem("checkedin_" + key, checkinBox.checked);
+    });
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+    restaurantList.appendChild(item);
+  });
+}
 
-        if (key.startsWith("restaurant_" + normalizedCity + "_")) {
-          const restaurant = JSON.parse(localStorage.getItem(key));
-          restaurant.key = key;
-          restaurantArray.push(restaurant);
-        }
-      }
+function sortRestaurants() {
+  const sortVal = document.getElementById("sortSelect").value;
 
-      displayRestaurants(restaurantArray);
-    }
+  if (sortVal === "low") {
+    restaurantArray.sort((a, b) => getLowestMenuPrice(a.menu) - getLowestMenuPrice(b.menu));
+  } else if (sortVal === "high") {
+    restaurantArray.sort((a, b) => getLowestMenuPrice(b.menu) - getLowestMenuPrice(a.menu));
+  }
 
-    function getLowestMenuPrice(menu) {
-      const prices = menu.map(item => parseFloat(item.price)).filter(p => !isNaN(p) && p > 0);
-      return prices.length > 0 ? Math.min(...prices) : Infinity;
-    }
+  displayRestaurants(restaurantArray);
+}
 
-    function displayRestaurants(list) {
-      const restaurantList = document.getElementById("restaurantList");
-      restaurantList.innerHTML = "";
+function updateStarDisplay(starsContainer, rating) {
+  Array.from(starsContainer.children).forEach(star => {
+    const starNumber = parseInt(star.getAttribute("data-star"));
+    star.classList.toggle("selected", starNumber <= rating);
+  });
+}
 
-      list.forEach(restaurant => {
-        const key = restaurant.key;
-        const savedRating = localStorage.getItem("rating_" + key) || 0;
-        const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
-        const startingPrice = getLowestMenuPrice(restaurant.menu);
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
 
-        const item = document.createElement("div");
-        item.classList.add("list-item");
+  if (chatContainer.style.display === "none") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
 
-        let content = `
-          🍽️ <strong>${restaurant.name}</strong>
-          <p><strong>City:</strong> ${restaurant.city}</p>
-          <p><strong>Address:</strong> ${restaurant.address}</p>
-          <p><strong>Description:</strong> ${restaurant.description}</p>
-          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
-          <div class="stars" data-key="${key}">
-        `;
+window.onload = loadRestaurants;
+</script>
 
-        for (let s = 1; s <= 5; s++) {
-          content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-        }
-
-        content += `
-          </div>
-          <div class="check-in">
-            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-            <label for="checkin_${key}">Check In</label>
-          </div>
-        `;
-
-        item.innerHTML = content;
-
-        const starContainer = item.querySelector(".stars");
-        starContainer.addEventListener("click", function (event) {
-          if (event.target.tagName === "SPAN") {
-            const starValue = parseInt(event.target.getAttribute("data-star"));
-            localStorage.setItem("rating_" + key, starValue);
-            updateStarDisplay(starContainer, starValue);
-          }
-        });
-
-        const checkinBox = item.querySelector(`#checkin_${key}`);
-        checkinBox.addEventListener("change", function () {
-          localStorage.setItem("checkedin_" + key, checkinBox.checked);
-        });
-
-        restaurantList.appendChild(item);
-      });
-    }
-
-    function sortRestaurants() {
-      const sortVal = document.getElementById("sortSelect").value;
-
-      if (sortVal === "low") {
-        restaurantArray.sort((a, b) => getLowestMenuPrice(a.menu) - getLowestMenuPrice(b.menu));
-      } else if (sortVal === "high") {
-        restaurantArray.sort((a, b) => getLowestMenuPrice(b.menu) - getLowestMenuPrice(a.menu));
-      }
-
-      displayRestaurants(restaurantArray);
-    }
-
-    function updateStarDisplay(starsContainer, rating) {
-      Array.from(starsContainer.children).forEach(star => {
-        const starNumber = parseInt(star.getAttribute("data-star"));
-        star.classList.toggle("selected", starNumber <= rating);
-      });
-    }
-
-    window.onload = loadRestaurants;
-  </script>
+<script src="chat.js"></script>
 
 </body>
 </html>

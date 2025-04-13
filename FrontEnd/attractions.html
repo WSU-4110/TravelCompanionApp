@@ -122,143 +122,160 @@
     }
   </style>
 </head>
+
 <body>
 
-  <header class="page-header">
-    <h1>Local Attractions</h1>
-  </header>
+<header class="page-header">
+  <h1>Local Attractions</h1>
+</header>
 
-  <section class="page-content">
-    <h2>Discover the Best Local Attractions</h2>
+<section class="page-content">
+  <h2>Discover the Best Local Attractions</h2>
 
-    <!-- Sort dropdown -->
-    <div class="sort-section">
-      <label for="sortSelect">Sort by:</label>
-      <select id="sortSelect" onchange="sortAttractions()">
-        <option value="">-- Select --</option>
-        <option value="low">Price (Low to High)</option>
-        <option value="high">Price (High to Low)</option>
-      </select>
-    </div>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortAttractions()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Low to High)</option>
+      <option value="high">Price (High to Low)</option>
+    </select>
+  </div>
 
-    <div class="list-container" id="attractionsList"></div>
+  <div class="list-container" id="attractionsList"></div>
 
-    <div class="btn-container">
-      <a href="homepage.html" class="btn">Back to Homepage</a>
-    </div>
-  </section>
+  <div class="btn-container">
+    <a href="homepage.html" class="btn">Back to Homepage</a>
+  </div>
+</section>
 
-  <script>
-    let attractionArray = [];
+<script>
+let attractionArray = [];
 
-    function loadAttractions() {
-      const selectedCity = localStorage.getItem("selectedCity");
-      const normalizedCity = selectedCity ? selectedCity.split(" ").join("_") : null;
+function loadAttractions() {
+  const selectedCity = localStorage.getItem("selectedCity");
+  const normalizedCity = selectedCity ? selectedCity.split(" ").join("_") : null;
 
-      if (!normalizedCity) {
-        alert("No city selected. Please select a city first.");
-        window.location.href = "select-city.html";
-        return;
-      }
+  if (!normalizedCity) {
+    alert("No city selected. Please select a city first.");
+    window.location.href = "select-city.html";
+    return;
+  }
 
-      let attractionsList = document.getElementById("attractionsList");
-      attractionsList.innerHTML = "";
+  let attractionsList = document.getElementById("attractionsList");
+  attractionsList.innerHTML = "";
 
-      attractionArray = [];
+  attractionArray = [];
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
 
-        if (key.startsWith("attraction_" + normalizedCity + "_")) {
-          const attraction = JSON.parse(localStorage.getItem(key));
-          attraction.key = key;
-          attractionArray.push(attraction);
-        }
-      }
+    if (key.startsWith("attraction_" + normalizedCity + "_")) {
+      const attraction = JSON.parse(localStorage.getItem(key));
+      attraction.key = key;
+      attractionArray.push(attraction);
+    }
+  }
 
-      displayAttractions(attractionArray);
+  displayAttractions(attractionArray);
+}
+
+function displayAttractions(list) {
+  const attractionsList = document.getElementById("attractionsList");
+  attractionsList.innerHTML = "";
+
+  if (list.length === 0) {
+    attractionsList.innerHTML = "<p>No attractions available for this city.</p>";
+    return;
+  }
+
+  list.forEach(attraction => {
+    const key = attraction.key;
+    const savedRating = localStorage.getItem("rating_" + key) || 0;
+    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+    const item = document.createElement("div");
+    item.classList.add("list-item");
+
+    let content = `
+      📍 <strong>${attraction.name}</strong>
+      <p><strong>City:</strong> ${attraction.city}</p>
+      <p><strong>Description:</strong> ${attraction.description}</p>
+      <p><strong>Fee:</strong> $${attraction.registrationFee}</p>
+      <div class="stars" data-key="${key}">
+    `;
+
+    for (let star = 1; star <= 5; star++) {
+      content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
     }
 
-    function displayAttractions(list) {
-      const attractionsList = document.getElementById("attractionsList");
-      attractionsList.innerHTML = "";
+    content += `</div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+        <label for="checkin_${key}">Check In</label>
+      </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${key}', this)" class="btn" style="padding: 8px 16px;">Comments</button>
+      </div>
+      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+    `;
 
-      if (list.length === 0) {
-        attractionsList.innerHTML = "<p>No attractions available for this city.</p>";
-        return;
+    item.innerHTML = content;
+
+    const stars = item.querySelector(".stars");
+    stars.addEventListener("click", function (event) {
+      if (event.target.tagName === "SPAN") {
+        const starValue = parseInt(event.target.getAttribute("data-star"));
+        localStorage.setItem("rating_" + key, starValue);
+        updateStarDisplay(stars, starValue);
       }
+    });
 
-      list.forEach(attraction => {
-        const key = attraction.key;
-        const savedRating = localStorage.getItem("rating_" + key) || 0;
-        const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+    const checkinBox = item.querySelector(`#checkin_${key}`);
+    checkinBox.addEventListener("change", function () {
+      localStorage.setItem("checkedin_" + key, checkinBox.checked);
+    });
 
-        const item = document.createElement("div");
-        item.classList.add("list-item");
+    attractionsList.appendChild(item);
+  });
+}
 
-        let content = `
-          📍 <strong>${attraction.name}</strong>
-          <p><strong>City:</strong> ${attraction.city}</p>
-          <p><strong>Description:</strong> ${attraction.description}</p>
-          <p><strong>Fee:</strong> $${attraction.registrationFee}</p>
-          <div class="stars" data-key="${key}">
-        `;
+function updateStarDisplay(container, rating) {
+  Array.from(container.children).forEach(star => {
+    const val = parseInt(star.getAttribute("data-star"));
+    star.classList.toggle("selected", val <= rating);
+  });
+}
 
-        for (let star = 1; star <= 5; star++) {
-          content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-        }
+function sortAttractions() {
+  const sortOption = document.getElementById("sortSelect").value;
 
-        content += `</div>
-          <div class="check-in">
-            <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-            <label for="checkin_${key}">Check In</label>
-          </div>`;
+  if (sortOption === "low") {
+    attractionArray.sort((a, b) => a.registrationFee - b.registrationFee);
+  } else if (sortOption === "high") {
+    attractionArray.sort((a, b) => b.registrationFee - a.registrationFee);
+  }
 
-        item.innerHTML = content;
+  displayAttractions(attractionArray);
+}
 
-        const stars = item.querySelector(".stars");
-        stars.addEventListener("click", function (event) {
-          if (event.target.tagName === "SPAN") {
-            const starValue = parseInt(event.target.getAttribute("data-star"));
-            localStorage.setItem("rating_" + key, starValue);
-            updateStarDisplay(stars, starValue);
-          }
-        });
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
 
-        const checkinBox = item.querySelector(`#checkin_${key}`);
-        checkinBox.addEventListener("change", function () {
-          localStorage.setItem("checkedin_" + key, checkinBox.checked);
-        });
+  if (chatContainer.style.display === "none") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
 
-        attractionsList.appendChild(item);
-      });
-    }
+window.onload = loadAttractions;
+</script>
 
-    function updateStarDisplay(container, rating) {
-      Array.from(container.children).forEach(star => {
-        const val = parseInt(star.getAttribute("data-star"));
-        star.classList.toggle("selected", val <= rating);
-      });
-    }
-
-    function sortAttractions() {
-      const sortOption = document.getElementById("sortSelect").value;
-
-      if (sortOption === "low") {
-        attractionArray.sort(function (a, b) {
-          return a.registrationFee - b.registrationFee;
-        });
-      } else if (sortOption === "high") {
-        attractionArray.sort(function (a, b) {
-          return b.registrationFee - a.registrationFee;
-        });
-      }
-
-      displayAttractions(attractionArray);
-    }
-
-    window.onload = loadAttractions;
-  </script>
+<script src="chat.js"></script>
 
 </body>
 </html>

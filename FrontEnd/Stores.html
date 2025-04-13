@@ -2,30 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stores - Travel Companion</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
       background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
 
-    .overlay {
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      min-height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
     }
 
     .page-header {
       width: 100%;
-      background: #1E3A8A;
+      background: rgba(30, 58, 138, 0.9);
       color: white;
       padding: 20px;
       text-align: center;
@@ -59,10 +64,10 @@
     }
 
     .list-item {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       width: 300px;
       text-align: left;
       font-size: 16px;
@@ -73,15 +78,36 @@
 
     .list-item:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
 
-    .back-btn {
-      text-align: center;
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
+    }
+
+    .stars span.selected {
+      color: gold;
+    }
+
+    .check-in {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
       margin-top: 20px;
     }
 
-    .back-btn a {
+    .btn {
       background: #1E3A8A;
       color: white;
       padding: 12px 20px;
@@ -91,119 +117,168 @@
       transition: background 0.3s;
     }
 
-    .back-btn a:hover {
+    .btn:hover {
       background: #152C5B;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="overlay">
-    <header class="page-header">
-      <h1>Stores</h1>
-    </header>
+<header class="page-header">
+  <h1>Stores</h1>
+</header>
 
-    <section class="page-content">
-      <h2>Find the Best Local Stores</h2>
+<section class="page-content">
+  <h2>Find the Best Local Stores</h2>
 
-      <!-- Sort dropdown -->
-      <div class="sort-section">
-        <label for="sortSelect">Sort by:</label>
-        <select id="sortSelect" onchange="sortStores()">
-          <option value="">-- Select --</option>
-          <option value="low">Price (Lowest First)</option>
-          <option value="high">Price (Highest First)</option>
-        </select>
-      </div>
-
-      <div class="list-container" id="businessList"></div>
-
-      <div class="back-btn">
-        <a href="HomePage.html" class="btn">Back to Homepage</a>
-      </div>
-    </section>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortStores()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Lowest First)</option>
+      <option value="high">Price (Highest First)</option>
+    </select>
   </div>
 
-  <script>
-    let storeArray = [];
+  <div class="list-container" id="storeList"></div>
 
-    function getLowestProductPrice(products) {
-      const prices = products.map(p => parseFloat(p.price)).filter(price => !isNaN(price) && price > 0);
-      return prices.length > 0 ? Math.min(...prices) : Infinity;
+  <div class="btn-container">
+    <a href="HomePage.html" class="btn">Back to Homepage</a>
+  </div>
+
+</section>
+
+<script>
+let storeArray = [];
+
+function getLowestProductPrice(products) {
+  const prices = products.map(p => parseFloat(p.price)).filter(price => !isNaN(price) && price > 0);
+  return prices.length > 0 ? Math.min(...prices) : Infinity;
+}
+
+function displayStores(list) {
+  const storeList = document.getElementById("storeList");
+  storeList.innerHTML = "";
+
+  if (list.length === 0) {
+    storeList.innerHTML = "<p>No stores available for this city.</p>";
+    return;
+  }
+
+  list.forEach(store => {
+    const key = store.key;
+    const startingPrice = getLowestProductPrice(store.products);
+    const savedRating = localStorage.getItem("rating_" + key) || 0;
+    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+
+    const card = document.createElement("div");
+    card.className = "list-item";
+
+    let content = `
+      🏬 <strong>${store.name}</strong>
+      <p><strong>City:</strong> ${store.city}</p>
+      <p><strong>Address:</strong> ${store.address}</p>
+      <p><strong>Description:</strong> ${store.description}</p>
+      <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
+      <div class="stars" data-key="${key}">
+    `;
+
+    for (let star = 1; star <= 5; star++) {
+      content += `<span data-star="${star}" ${star <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
     }
 
-    function displayBusinesses(list) {
-      const container = document.getElementById('businessList');
-      container.innerHTML = '';
+    content += `</div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
+        <label for="checkin_${key}">Check In</label>
+      </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${key}', this)" class="btn" style="padding: 8px 16px;">Comments</button>
+      </div>
+      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+    `;
 
-      if (list.length === 0) {
-        container.innerHTML = `<p style="color:white;">No stores registered for this city yet.</p>`;
-        return;
+    card.innerHTML = content;
+
+    const starsContainer = card.querySelector(".stars");
+    starsContainer.addEventListener("click", function(event) {
+      if (event.target.tagName === "SPAN") {
+        const starValue = parseInt(event.target.getAttribute("data-star"));
+        localStorage.setItem("rating_" + key, starValue);
+        updateStarDisplay(starsContainer, starValue);
       }
+    });
 
-      list.forEach(store => {
-        const startingPrice = getLowestProductPrice(store.products);
+    const checkinBox = card.querySelector(`#checkin_${key}`);
+    checkinBox.addEventListener("change", function() {
+      localStorage.setItem("checkedin_" + key, checkinBox.checked);
+    });
 
-        const card = document.createElement('div');
-        card.className = 'list-item';
+    storeList.appendChild(card);
+  });
+}
 
-        let content = `
-          <h3>${store.name}</h3>
-          <p><strong>City:</strong> ${store.city}</p>
-          <p><strong>Address:</strong> ${store.address}</p>
-          <p><strong>Description:</strong> ${store.description}</p>
-          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
-          <h4>Products:</h4>
-          <ul>
-            ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
-          </ul>
-          <h4>Business Hours:</h4>
-          <ul>
-            ${Object.entries(store.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
-          </ul>
-        `;
+function updateStarDisplay(container, rating) {
+  Array.from(container.children).forEach(star => {
+    const starValue = parseInt(star.getAttribute("data-star"));
+    star.classList.toggle("selected", starValue <= rating);
+  });
+}
 
-        card.innerHTML = content;
-        container.appendChild(card);
-      });
+function sortStores() {
+  const sortVal = document.getElementById("sortSelect").value;
+
+  if (sortVal === "low") {
+    storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
+  } else if (sortVal === "high") {
+    storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
+  }
+
+  displayStores(storeArray);
+}
+
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
+
+  if (chatContainer.style.display === "none") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
+
+function loadStores() {
+  const selectedCity = localStorage.getItem('selectedCity');
+  if (!selectedCity) {
+    alert("No city selected. Please select a city.");
+    window.location.href = "select-city.html";
+    return;
+  }
+
+  const normalizedCity = selectedCity.replace(/\s+/g, "_");
+  storeArray = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("store_" + normalizedCity + "_")) {
+      const store = JSON.parse(localStorage.getItem(key));
+      store.key = key;
+      storeArray.push(store);
     }
+  }
 
-    function sortStores() {
-      const sortValue = document.getElementById("sortSelect").value;
+  displayStores(storeArray);
+}
 
-      if (sortValue === "low") {
-        storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
-      } else if (sortValue === "high") {
-        storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
-      }
+window.onload = loadStores;
+</script>
 
-      displayBusinesses(storeArray);
-    }
-
-    function loadStores() {
-      const selectedCity = localStorage.getItem('selectedCity');
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
-        return;
-      }
-
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      storeArray = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith("store_" + normalizedCity + "_")) {
-          const store = JSON.parse(localStorage.getItem(key));
-          storeArray.push(store);
-        }
-      }
-
-      displayBusinesses(storeArray);
-    }
-
-    window.onload = loadStores;
-  </script>
+<script src="chat.js"></script>
 
 </body>
 </html>
