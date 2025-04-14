@@ -138,6 +138,7 @@
       <option value="high">Price (Highest)</option>
       <option value="ratingHigh">Rating (High to Low)</option>
       <option value="ratingLow">Rating (Low to High)</option>
+      <option value="checkins">Most Check-Ins</option>
     </select>
   </div>
 
@@ -182,6 +183,10 @@ function getLowestProductPrice(products) {
   return prices.length > 0 ? Math.min(...prices) : Infinity;
 }
 
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+}
+
 function displayStores(list) {
   const storeList = document.getElementById('storeList');
   storeList.innerHTML = "";
@@ -189,6 +194,7 @@ function displayStores(list) {
   list.forEach(store => {
     const key = store.key;
     const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+    const checkInCount = getCheckInCount(key);
 
     const item = document.createElement("div");
     item.classList.add("list-item");
@@ -206,23 +212,40 @@ function displayStores(list) {
       <div class="stars" data-key="${key}">`;
 
     for (let s = 1; s <= 5; s++) {
-      content += `<span data-star="${s}" ${s <= store.rating ? 'class="selected"' : ''}>&#9733;</span>`;
+      if (s <= store.rating) {
+        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
+      } else {
+        content += `<span data-star="${s}">&#9733;</span>`;
+      }
     }
 
     content += `</div>
       <div class="check-in">
-        <input type="checkbox" id="checkin_${key}" ${isCheckedIn ? "checked" : ""}>
-        <label for="checkin_${key}">Check In</label>
-      </div>
-      ${store.hours ? `
+        <input type="checkbox" id="checkin_${key}"`;
+
+    if (isCheckedIn) {
+      content += ' checked';
+    }
+
+    content += `>
+        <label for="checkin_${key}">Check In (${checkInCount} total)</label>
+      </div>`;
+
+    if (store.hours) {
+      content += `
       <h4>Business Hours:</h4>
-      <ul>
-        ${Object.entries(store.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
-      </ul>` : ''}
-      <div style="margin-top: 10px; text-align: center;">
-        <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
-      </div>
-      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+      <ul>`;
+      for (const [day, time] of Object.entries(store.hours)) {
+        content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
+      }
+      content += `</ul>`;
+    }
+
+    content += `
+    <div style="margin-top: 10px; text-align: center;">
+      <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
+    </div>
+    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
     `;
 
     item.innerHTML = content;
@@ -239,7 +262,12 @@ function displayStores(list) {
 
     const checkinBox = item.querySelector(`#checkin_${key}`);
     checkinBox.addEventListener('change', function () {
+      if (checkinBox.checked) {
+        let count = getCheckInCount(key) + 1;
+        localStorage.setItem('checkins_' + key, count);
+      }
       localStorage.setItem('checkedin_' + key, checkinBox.checked);
+      displayStores(storeArray);
     });
 
     storeList.appendChild(item);
@@ -264,6 +292,8 @@ function sortStores() {
     storeArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {
     storeArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "checkins") {
+    storeArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
   }
 
   displayStores(storeArray);
