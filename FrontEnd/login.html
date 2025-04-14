@@ -98,13 +98,6 @@
         <!-- Registration Form (Hidden by default) -->
         <div id="registerForm" style="display:none;">
             <input type="text" id="username" placeholder="Username">
-            <select id="gender" required style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center;">
-                <option value="" disabled selected>Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-            <input type = "Age" id = "age" placeholder = "User Age">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
             <button class="btn" onclick="register()">Sign Up</button>
@@ -132,11 +125,9 @@
         function register() {
             let username = document.getElementById("username").value;
             let email = document.getElementById("email").value;
-            let gender = document.getElementById("gender").value;
-            let age = document.getElementById("age").value;
             let password = document.getElementById("password").value;
             
-            if (username && email && password && gender && age) {
+            if (username && email && password) {
                 let users = JSON.parse(localStorage.getItem("users")) || [];
 
                 // Check if email is already registered
@@ -146,7 +137,7 @@
                 }
 
                 // Save user info to localStorage
-                users.push({ username, email,gender, age, password });
+                users.push({ username, email, password });
                 localStorage.setItem("users", JSON.stringify(users));
 
                 alert("Account created successfully! Please log in.");
