@@ -2,30 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stores - Travel Companion</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
       background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
 
-    .overlay {
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      min-height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
     }
 
     .page-header {
       width: 100%;
-      background: #1E3A8A;
+      background: rgba(30, 58, 138, 0.9);
       color: white;
       padding: 20px;
       text-align: center;
@@ -39,16 +44,6 @@
       width: 100%;
     }
 
-    .sort-section {
-      margin-bottom: 20px;
-    }
-
-    .sort-section select {
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -59,21 +54,14 @@
     }
 
     .list-item {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       width: 300px;
       text-align: left;
       font-size: 16px;
       color: #333;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .list-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
     .stars {
@@ -87,169 +75,248 @@
       color: gold;
     }
 
-    .back-btn {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .back-btn a {
+    .btn {
       background: #1E3A8A;
       color: white;
       padding: 12px 20px;
       border-radius: 8px;
       text-decoration: none;
       font-size: 16px;
+      margin-top: 10px;
+      display: inline-block;
       transition: background 0.3s;
+      border: none;
+      cursor: pointer;
     }
 
-    .back-btn a:hover {
+    .btn:hover {
       background: #152C5B;
+    }
+
+    .sort-section {
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .sort-section select {
+      padding: 8px 32px 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      appearance: none;
+      background-color: #fff;
+      color: #333;
+      border: none;
+    }
+
+    .sort-section::after {
+      content: "▼";
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      color: #333;
+      pointer-events: none;
+      font-size: 12px;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="overlay">
-    <header class="page-header">
-      <h1>Stores</h1>
-    </header>
+<header class="page-header">
+  <h1>Stores</h1>
+</header>
 
-    <section class="page-content">
-      <h2>Find the Best Local Stores</h2>
+<section class="page-content">
 
-      <!-- Sort dropdown -->
-      <div class="sort-section">
-        <label for="sortSelect">Sort by:</label>
-        <select id="sortSelect" onchange="sortStores()">
-          <option value="">-- Select --</option>
-          <option value="low">Price (Lowest First)</option>
-          <option value="high">Price (Highest First)</option>
-          <option value="ratingHigh">Rating (High to Low)</option>
-          <option value="ratingLow">Rating (Low to High)</option>
-        </select>
-      </div>
-
-      <div class="list-container" id="businessList"></div>
-
-      <div class="back-btn">
-        <a href="HomePage.html" class="btn">Back to Homepage</a>
-      </div>
-    </section>
+  <div class="sort-section">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="sortStores()">
+      <option value="">-- Select --</option>
+      <option value="low">Price (Lowest)</option>
+      <option value="high">Price (Highest)</option>
+      <option value="ratingHigh">Rating (High to Low)</option>
+      <option value="ratingLow">Rating (Low to High)</option>
+      <option value="checkins">Most Check-Ins</option>
+    </select>
   </div>
 
-  <script>
-    let storeArray = [];
+  <div class="list-container" id="storeList"></div>
 
-    function getLowestProductPrice(products) {
-      const prices = products.map(p => parseFloat(p.price)).filter(price => !isNaN(price) && price > 0);
-      return prices.length > 0 ? Math.min(...prices) : Infinity;
+  <a href="homepage.html" class="btn">Back to Homepage</a>
+
+</section>
+
+<script>
+let storeArray = [];
+
+function loadStores() {
+  const storeList = document.getElementById('storeList');
+  storeList.innerHTML = "";
+
+  const selectedCity = localStorage.getItem("selectedCity");
+  if (!selectedCity) {
+    alert("No city selected. Please select a city first.");
+    window.location.href = "select-city.html";
+    return;
+  }
+
+  const normalizedCity = selectedCity.replace(/\s+/g, "_");
+  storeArray = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("store_" + normalizedCity + "_")) {
+      const store = JSON.parse(localStorage.getItem(key));
+      store.key = key;
+      store.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+      storeArray.push(store);
     }
+  }
 
-    function displayBusinesses(list) {
-      const container = document.getElementById('businessList');
-      container.innerHTML = '';
+  displayStores(storeArray);
+}
 
-      if (list.length === 0) {
-        container.innerHTML = `<p style="color:white;">No stores registered for this city yet.</p>`;
-        return;
+function getLowestProductPrice(products) {
+  const prices = products.map(p => parseFloat(p.price)).filter(p => !isNaN(p) && p > 0);
+  return prices.length > 0 ? Math.min(...prices) : Infinity;
+}
+
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+}
+
+function displayStores(list) {
+  const storeList = document.getElementById('storeList');
+  storeList.innerHTML = "";
+
+  list.forEach(store => {
+    const key = store.key;
+    const isCheckedIn = localStorage.getItem("checkedin_" + key) === "true";
+    const checkInCount = getCheckInCount(key);
+
+    const item = document.createElement("div");
+    item.classList.add("list-item");
+
+    let content = `
+      <strong>${store.name}</strong>
+      <p><strong>City:</strong> ${store.city}</p>
+      <p><strong>Address:</strong> ${store.address}</p>
+      <p><strong>Description:</strong> ${store.description}</p>
+      <p><strong>Starting From:</strong> $${getLowestProductPrice(store.products) === Infinity ? "N/A" : getLowestProductPrice(store.products)}</p>
+      <h4>Products:</h4>
+      <ul>
+        ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
+      </ul>
+      <div class="stars" data-key="${key}">`;
+
+    for (let s = 1; s <= 5; s++) {
+      if (s <= store.rating) {
+        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
+      } else {
+        content += `<span data-star="${s}">&#9733;</span>`;
       }
-
-      list.forEach(store => {
-        const startingPrice = getLowestProductPrice(store.products);
-        const savedRating = store.rating || 0;
-
-        const card = document.createElement('div');
-        card.className = 'list-item';
-
-        let content = `
-          <h3>${store.name}</h3>
-          <p><strong>City:</strong> ${store.city}</p>
-          <p><strong>Address:</strong> ${store.address}</p>
-          <p><strong>Description:</strong> ${store.description}</p>
-          <p><strong>Starting From:</strong> $${startingPrice === Infinity ? "N/A" : startingPrice}</p>
-          <h4>Products:</h4>
-          <ul>
-            ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
-          </ul>
-          <div class="stars" data-key="${store.key}">
-        `;
-
-        for (let s = 1; s <= 5; s++) {
-          content += `<span data-star="${s}" ${s <= savedRating ? 'class="selected"' : ''}>&#9733;</span>`;
-        }
-
-        content += `</div>
-          <h4>Business Hours:</h4>
-          <ul>
-            ${Object.entries(store.hours).map(([day, time]) => `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`).join('')}
-          </ul>
-        `;
-
-        card.innerHTML = content;
-
-        const starContainer = card.querySelector('.stars');
-        starContainer.addEventListener('click', function (event) {
-          if (event.target.tagName === 'SPAN') {
-            const starValue = parseInt(event.target.getAttribute('data-star'));
-            localStorage.setItem('rating_' + store.key, starValue);
-            store.rating = starValue;
-            updateStarDisplay(starContainer, starValue);
-          }
-        });
-
-        container.appendChild(card);
-      });
     }
 
-    function updateStarDisplay(starsContainer, rating) {
-      Array.from(starsContainer.children).forEach(star => {
-        const starNumber = parseInt(star.getAttribute("data-star"));
-        star.classList.toggle("selected", starNumber <= rating);
-      });
+    content += `</div>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}"`;
+
+    if (isCheckedIn) {
+      content += ' checked';
     }
 
-    function sortStores() {
-      const sortValue = document.getElementById("sortSelect").value;
+    content += `>
+        <label for="checkin_${key}">Check In (${checkInCount} total)</label>
+      </div>`;
 
-      if (sortValue === "low") {
-        storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
-      } else if (sortValue === "high") {
-        storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
-      } else if (sortValue === "ratingHigh") {
-        storeArray.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      } else if (sortValue === "ratingLow") {
-        storeArray.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+    if (store.hours) {
+      content += `
+      <h4>Business Hours:</h4>
+      <ul>`;
+      for (const [day, time] of Object.entries(store.hours)) {
+        content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
       }
-
-      displayBusinesses(storeArray);
+      content += `</ul>`;
     }
 
-    function loadStores() {
-      const selectedCity = localStorage.getItem('selectedCity');
-      if (!selectedCity) {
-        alert("No city selected. Please select a city.");
-        window.location.href = "select-city.html";
-        return;
+    content += `
+    <div style="margin-top: 10px; text-align: center;">
+      <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
+    </div>
+    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
+    `;
+
+    item.innerHTML = content;
+
+    const starContainer = item.querySelector('.stars');
+    starContainer.addEventListener('click', function (event) {
+      if (event.target.tagName === 'SPAN') {
+        const starValue = parseInt(event.target.getAttribute('data-star'));
+        localStorage.setItem('rating_' + key, starValue);
+        store.rating = starValue;
+        updateStarDisplay(starContainer, starValue);
       }
+    });
 
-      const normalizedCity = selectedCity.replace(/\s+/g, "_");
-      storeArray = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith("store_" + normalizedCity + "_")) {
-          const store = JSON.parse(localStorage.getItem(key));
-          store.key = key;
-          store.rating = parseFloat(localStorage.getItem("rating_" + key)) || 0;
-          storeArray.push(store);
-        }
+    const checkinBox = item.querySelector(`#checkin_${key}`);
+    checkinBox.addEventListener('change', function () {
+      if (checkinBox.checked) {
+        let count = getCheckInCount(key) + 1;
+        localStorage.setItem('checkins_' + key, count);
       }
+      localStorage.setItem('checkedin_' + key, checkinBox.checked);
+      displayStores(storeArray);
+    });
 
-      displayBusinesses(storeArray);
-    }
+    storeList.appendChild(item);
+  });
+}
 
-    window.onload = loadStores;
-  </script>
+function updateStarDisplay(container, rating) {
+  Array.from(container.children).forEach(star => {
+    const starNumber = parseInt(star.getAttribute('data-star'));
+    star.classList.toggle('selected', starNumber <= rating);
+  });
+}
+
+function sortStores() {
+  const sortVal = document.getElementById("sortSelect").value;
+
+  if (sortVal === "low") {
+    storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
+  } else if (sortVal === "high") {
+    storeArray.sort((a, b) => getLowestProductPrice(b.products) - getLowestProductPrice(a.products));
+  } else if (sortVal === "ratingHigh") {
+    storeArray.sort((a, b) => b.rating - a.rating);
+  } else if (sortVal === "ratingLow") {
+    storeArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "checkins") {
+    storeArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
+  }
+
+  displayStores(storeArray);
+}
+
+function toggleChatbox(businessId, btn) {
+  const containerId = `chatbox_${businessId}`;
+  const chatContainer = document.getElementById(containerId);
+
+  if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+    chatContainer.style.display = "block";
+    createChatBox(businessId, containerId);
+    btn.innerText = "Hide Comments";
+  } else {
+    chatContainer.style.display = "none";
+    btn.innerText = "Comments";
+  }
+}
+
+window.onload = loadStores;
+</script>
+
+<script src="chat.js"></script>
 
 </body>
 </html>
