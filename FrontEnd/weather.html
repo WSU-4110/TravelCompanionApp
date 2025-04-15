@@ -4,65 +4,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weather - Travel Companion</title>
-  <link rel="stylesheet" href="styles.css" />
   <style>
-    .header {
-      width: 100%;
-      background: #007bff;
-      color: white;
-      padding: 15px;
-      font-size: 24px;
-      text-align: center;
-      position: fixed;
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
     }
-    .content {
-      margin-top: 80px;
+
+    .page-header {
+      width: 100%;
+      background: rgba(30, 58, 138, 0.9);
+      color: white;
+      padding: 20px;
       text-align: center;
-      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
     }
-    #forecast-selector {
-      margin: 20px auto;
-      padding: 10px;
-      font-size: 16px;
+
+    .page-content {
+      padding: 40px 20px;
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
     }
-    #forecast-display {
-      background: rgba(255,255,255,0.9);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      max-width: 500px;
-      margin: 20px auto;
+
+    .forecast-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      color: #333;
+      margin-top: 20px;
       text-align: left;
     }
-    .back-btn {
-      margin-top: 20px;
+
+    select#forecast-selector {
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      border: none;
+      margin: 20px 0;
+      width: 100%;
+      max-width: 400px;
     }
-    .back-btn a {
-      background: #007bff;
+
+    .btn {
+      background: #1E3A8A;
       color: white;
       padding: 12px 20px;
       border-radius: 8px;
       text-decoration: none;
       font-size: 16px;
+      display: inline-block;
+      cursor: pointer;
+      margin-top: 20px;
       transition: background 0.3s;
     }
-    .back-btn a:hover {
-      background: #003f7f;
+
+    .btn:hover {
+      background: #152C5B;
     }
   </style>
 </head>
 <body>
-  <div class="header">Weather</div>
-  <main class="content">
+  <header class="page-header">
+    <h1>Weather</h1>
+  </header>
+
+  <section class="page-content">
     <h2>Weather Forecast</h2>
     <select id="forecast-selector"></select>
-    <div id="forecast-display"></div>
-    <div class="back-btn">
-      <a href="HomePage.html">Back to Homepage</a>
-    </div>
-  </main>
+    <div id="forecast-display" class="forecast-box"></div>
+    <a href="HomePage.html" class="btn">Back to Homepage</a>
+  </section>
+
   <script type="module" src="weather-forecast-selectable.js"></script>
 </body>
 </html>

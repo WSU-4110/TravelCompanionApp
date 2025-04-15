@@ -144,6 +144,7 @@
     <option value="high">Price (Highest)</option>
     <option value="ratingHigh">Rating (High to Low)</option>
     <option value="ratingLow">Rating (Low to High)</option>
+    <option value="avgRating">Average Rating (High to Low)</option>
     <option value="checkins">Most Check-Ins</option>
   </select>
 </div>
@@ -157,10 +158,29 @@
 <script>
 let hotelArray = [];
 
-function loadHotels() {
-  const hotelList = document.getElementById('hotelList');
-  hotelList.innerHTML = "";
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+}
 
+function getAverageRating(key) {
+  let total = 0;
+  let count = 0;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith("rating_" + key + "_")) {
+      const rating = parseInt(localStorage.getItem(k));
+      if (!isNaN(rating)) {
+        total += rating;
+        count++;
+      }
+    }
+  }
+
+  return count > 0 ? (total / count).toFixed(1) : "0.0";
+}
+
+function loadHotels() {
   const selectedCity = localStorage.getItem("selectedCity");
   if (!selectedCity) {
     alert("No city selected. Please select a city first.");
@@ -176,7 +196,11 @@ function loadHotels() {
     if (key.startsWith("hotel_" + normalizedCity + "_")) {
       const hotel = JSON.parse(localStorage.getItem(key));
       hotel.key = key;
-      hotel.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+
+      const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
+      hotel.rating = parseInt(localStorage.getItem("rating_" + key + "_" + currentUser)) || 0;
+      hotel.avgRating = parseFloat(getAverageRating(key));
+
       hotelArray.push(hotel);
     }
   }
@@ -184,13 +208,11 @@ function loadHotels() {
   displayHotels(hotelArray);
 }
 
-function getCheckInCount(key) {
-  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
-}
-
 function displayHotels(list) {
   const hotelList = document.getElementById('hotelList');
   hotelList.innerHTML = "";
+
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
 
   list.forEach(hotel => {
     const key = hotel.key;
@@ -217,15 +239,14 @@ function displayHotels(list) {
     }
 
     content += `</div>
+    <p><strong>Average Rating:</strong> ${hotel.avgRating} ⭐</p>
     <div class="check-in">
       <input type="checkbox" id="checkin_${key}"${isCheckedIn ? " checked" : ""}>
       <label for="checkin_${key}">Check In (${checkInCount} total)</label>
     </div>`;
 
     if (hotel.hours) {
-      content += `
-      <h4>Business Hours:</h4>
-      <ul>`;
+      content += `<h4>Business Hours:</h4><ul>`;
       for (const [day, time] of Object.entries(hotel.hours)) {
         content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
       }
@@ -244,9 +265,12 @@ function displayHotels(list) {
     starContainer.addEventListener('click', function (event) {
       if (event.target.tagName === 'SPAN') {
         const starValue = parseInt(event.target.getAttribute('data-star'));
-        localStorage.setItem('rating_' + key, starValue);
+        const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
+
+        localStorage.setItem('rating_' + key + '_' + currentUser, starValue);
         hotel.rating = starValue;
-        updateStarDisplay(starContainer, starValue);
+        hotel.avgRating = parseFloat(getAverageRating(key));
+        displayHotels(hotelArray);
       }
     });
 
@@ -282,6 +306,8 @@ function sortHotels() {
     hotelArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {
     hotelArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "avgRating") {
+    hotelArray.sort((a, b) => b.avgRating - a.avgRating);
   } else if (sortVal === "checkins") {
     hotelArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
   }
