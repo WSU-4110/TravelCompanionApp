@@ -7,12 +7,7 @@ function getSelectedCity() {
 function renderForecastSelector(forecastData) {
   const selector = document.getElementById("forecast-selector");
   const display = document.getElementById("forecast-display");
-
-  if (!selector || !display) {
-    console.warn("Missing #forecast-selector or #forecast-display element.");
-    return;
-  }
-
+  if (!selector || !display) return;
   selector.innerHTML = "";
   forecastData.forEach((day, index) => {
     const option = document.createElement("option");
@@ -20,12 +15,9 @@ function renderForecastSelector(forecastData) {
     option.textContent = `${day.date} - ${day.day.condition.text}`;
     selector.appendChild(option);
   });
-
   selector.addEventListener("change", () => {
-    const selected = forecastData[selector.value];
-    showForecastForDay(selected);
+    showForecastForDay(forecastData[selector.value]);
   });
-
   showForecastForDay(forecastData[0]);
 }
 
@@ -42,19 +34,16 @@ function showForecastForDay(day) {
   `;
 }
 
-function fetchForecast() {
+function weather() {
   const city = getSelectedCity();
   const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(city)}&days=5`;
-
   fetch(url)
     .then(response => response.json())
     .then(data => {
-      const forecastDays = data.forecast.forecastday;
-      renderForecastSelector(forecastDays);
+      renderForecastSelector(data.forecast.forecastday);
     })
-    .catch(error => {
-      console.error("Error fetching forecast:", error);
-    });
+    .catch(error => console.error("Error fetching forecast:", error));
 }
 
-window.onload = fetchForecast;
+window.onload = weather;
+export default weather;
