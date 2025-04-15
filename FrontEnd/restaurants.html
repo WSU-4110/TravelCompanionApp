@@ -4,125 +4,124 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restaurants - Travel Companion</title>
-<style>
+  <style>
+    body {
+      background: url('images/hero-image.jpg') no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
 
-body {
-  background: url('images/hero-image.jpg') no-repeat center center/cover;
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
 
-body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: -1;
-}
+    .page-header {
+      width: 100%;
+      background: rgba(30, 58, 138, 0.9);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-.page-header {
-  width: 100%;
-  background: rgba(30, 58, 138, 0.9);
-  color: white;
-  padding: 20px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-}
+    .page-content {
+      text-align: center;
+      padding: 40px 20px;
+      width: 100%;
+    }
 
-.page-content {
-  text-align: center;
-  padding: 40px 20px;
-  width: 100%;
-}
+    .list-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
 
-.list-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  max-width: 1200px;
-  margin: 20px auto;
-}
+    .list-item {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      width: 300px;
+      text-align: left;
+      font-size: 16px;
+      color: #333;
+    }
 
-.list-item {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  width: 300px;
-  text-align: left;
-  font-size: 16px;
-  color: #333;
-}
+    .stars {
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+      margin: 5px 0;
+    }
 
-.stars {
-  font-size: 24px;
-  cursor: pointer;
-  color: #ccc;
-  margin: 5px 0;
-}
+    .stars span.selected {
+      color: gold;
+    }
 
-.stars span.selected {
-  color: gold;
-}
+    .check-in {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
 
-.check-in {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  margin-top: 5px;
-}
+    .btn {
+      background: #1E3A8A;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 10px;
+      display: inline-block;
+      cursor: pointer;
+    }
 
-.btn {
-  background: #1E3A8A;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 16px;
-  margin-top: 10px;
-  display: inline-block;
-  cursor: pointer;
-}
+    .sort-section {
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+    }
 
-.sort-section {
-  margin-bottom: 20px;
-  position: relative;
-  display: inline-block;
-}
+    .sort-section select {
+      padding: 8px 32px 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      appearance: none;
+      background-color: #fff;
+      color: #333;
+      border: none;
+    }
 
-.sort-section select {
-  padding: 8px 32px 8px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  appearance: none;
-  background-color: #fff;
-  color: #333;
-  border: none;
-}
-
-.sort-section::after {
-  content: "▼";
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  color: #333;
-  pointer-events: none;
-  font-size: 12px;
-}
-</style>
+    .sort-section::after {
+      content: "▼";
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      color: #333;
+      pointer-events: none;
+      font-size: 12px;
+    }
+  </style>
 </head>
 
 <body>
@@ -141,6 +140,7 @@ body::before {
     <option value="high">Price (Highest)</option>
     <option value="ratingHigh">Rating (High to Low)</option>
     <option value="ratingLow">Rating (Low to High)</option>
+    <option value="avgRating">Average Rating (High to Low)</option>
     <option value="checkins">Most Check-Ins</option>
   </select>
 </div>
@@ -150,8 +150,34 @@ body::before {
 <a href="homepage.html" class="btn">Back to Homepage</a>
 
 </section>
+
 <script>
 let restaurantArray = [];
+
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+}
+
+function getLowestMenuPrice(menu) {
+  const prices = menu.map(item => parseFloat(item.price)).filter(p => !isNaN(p) && p > 0);
+  return prices.length > 0 ? Math.min(...prices) : Infinity;
+}
+
+function getAverageRating(key) {
+  let total = 0;
+  let count = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith("rating_" + key + "_")) {
+      const rating = parseInt(localStorage.getItem(k));
+      if (!isNaN(rating)) {
+        total += rating;
+        count++;
+      }
+    }
+  }
+  return count > 0 ? (total / count).toFixed(1) : "0.0";
+}
 
 function loadRestaurants() {
   const restaurantList = document.getElementById('restaurantList');
@@ -172,7 +198,9 @@ function loadRestaurants() {
     if (key.startsWith("restaurant_" + normalizedCity + "_")) {
       const restaurant = JSON.parse(localStorage.getItem(key));
       restaurant.key = key;
-      restaurant.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+      const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
+      restaurant.rating = parseInt(localStorage.getItem("rating_" + key + "_" + currentUser)) || 0;
+      restaurant.avgRating = parseFloat(getAverageRating(key));
       restaurantArray.push(restaurant);
     }
   }
@@ -180,18 +208,11 @@ function loadRestaurants() {
   displayRestaurants(restaurantArray);
 }
 
-function getLowestMenuPrice(menu) {
-  const prices = menu.map(item => parseFloat(item.price)).filter(p => !isNaN(p) && p > 0);
-  return prices.length > 0 ? Math.min(...prices) : Infinity;
-}
-
-function getCheckInCount(key) {
-  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
-}
-
 function displayRestaurants(list) {
   const restaurantList = document.getElementById('restaurantList');
   restaurantList.innerHTML = "";
+
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
 
   list.forEach(restaurant => {
     const key = restaurant.key;
@@ -214,29 +235,18 @@ function displayRestaurants(list) {
       <div class="stars" data-key="${key}">`;
 
     for (let s = 1; s <= 5; s++) {
-      if (s <= restaurant.rating) {
-        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
-      } else {
-        content += `<span data-star="${s}">&#9733;</span>`;
-      }
+      content += `<span data-star="${s}"${s <= restaurant.rating ? ' class="selected"' : ''}>&#9733;</span>`;
     }
 
     content += `</div>
-    <div class="check-in">
-      <input type="checkbox" id="checkin_${key}"`;
-
-    if (isCheckedIn) {
-      content += ' checked';
-    }
-
-    content += `>
-    <label for="checkin_${key}">Check In (${checkInCount} total)</label>
-    </div>`;
+      <p><strong>Average Rating:</strong> ${restaurant.avgRating} ⭐</p>
+      <div class="check-in">
+        <input type="checkbox" id="checkin_${key}"${isCheckedIn ? " checked" : ""}>
+        <label for="checkin_${key}">Check In (${checkInCount} total)</label>
+      </div>`;
 
     if (restaurant.hours) {
-      content += `
-      <h4>Business Hours:</h4>
-      <ul>`;
+      content += `<h4>Business Hours:</h4><ul>`;
       for (const [day, time] of Object.entries(restaurant.hours)) {
         content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
       }
@@ -244,11 +254,10 @@ function displayRestaurants(list) {
     }
 
     content += `
-    <div style="margin-top: 10px; text-align: center;">
-      <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
-    </div>
-    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
-    `;
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
+      </div>
+      <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>`;
 
     item.innerHTML = content;
 
@@ -256,9 +265,10 @@ function displayRestaurants(list) {
     starContainer.addEventListener('click', function (event) {
       if (event.target.tagName === 'SPAN') {
         const starValue = parseInt(event.target.getAttribute('data-star'));
-        localStorage.setItem('rating_' + key, starValue);
+        localStorage.setItem("rating_" + key + "_" + currentUser, starValue);
         restaurant.rating = starValue;
-        updateStarDisplay(starContainer, starValue);
+        restaurant.avgRating = parseFloat(getAverageRating(key));
+        displayRestaurants(restaurantArray);
       }
     });
 
@@ -276,13 +286,6 @@ function displayRestaurants(list) {
   });
 }
 
-function updateStarDisplay(container, rating) {
-  Array.from(container.children).forEach(star => {
-    const starNumber = parseInt(star.getAttribute('data-star'));
-    star.classList.toggle('selected', starNumber <= rating);
-  });
-}
-
 function sortRestaurants() {
   const sortVal = document.getElementById("sortSelect").value;
 
@@ -294,6 +297,8 @@ function sortRestaurants() {
     restaurantArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {
     restaurantArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "avgRating") {
+    restaurantArray.sort((a, b) => b.avgRating - a.avgRating);
   } else if (sortVal === "checkins") {
     restaurantArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
   }
@@ -316,7 +321,6 @@ function toggleChatbox(businessId, btn) {
 }
 
 window.onload = loadRestaurants;
-
 </script>
 
 <script src="chat.js"></script>

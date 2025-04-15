@@ -112,7 +112,7 @@
     }
 
     .sort-section::after {
-      content: "▼";
+      content: "\25BC";
       position: absolute;
       top: 50%;
       right: 12px;
@@ -123,15 +123,11 @@
     }
   </style>
 </head>
-
 <body>
-
 <header class="page-header">
   <h1>Attractions</h1>
 </header>
-
 <section class="page-content">
-
   <div class="sort-section">
     <label for="sortSelect">Sort by:</label>
     <select id="sortSelect" onchange="sortAttractions()">
@@ -140,18 +136,39 @@
       <option value="high">Price (Highest)</option>
       <option value="ratingHigh">Rating (High to Low)</option>
       <option value="ratingLow">Rating (Low to High)</option>
+      <option value="avgRating">Average Rating (High to Low)</option>
       <option value="checkins">Most Check-Ins</option>
     </select>
   </div>
-
   <div class="list-container" id="attractionList"></div>
-
   <a href="homepage.html" class="btn">Back to Homepage</a>
-
 </section>
-
 <script>
 let attractionArray = [];
+
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+}
+
+function getLowestTicketPrice(attraction) {
+  return isNaN(attraction.registrationFee) ? Infinity : attraction.registrationFee;
+}
+
+function getAverageRating(key) {
+  let total = 0;
+  let count = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith("rating_" + key + "_")) {
+      const rating = parseInt(localStorage.getItem(k));
+      if (!isNaN(rating)) {
+        total += rating;
+        count++;
+      }
+    }
+  }
+  return count > 0 ? (total / count).toFixed(1) : "0.0";
+}
 
 function loadAttractions() {
   const attractionList = document.getElementById('attractionList');
@@ -172,7 +189,9 @@ function loadAttractions() {
     if (key.startsWith("attraction_" + normalizedCity + "_")) {
       const attraction = JSON.parse(localStorage.getItem(key));
       attraction.key = key;
-      attraction.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
+      const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
+      attraction.rating = parseInt(localStorage.getItem("rating_" + key + "_" + currentUser)) || 0;
+      attraction.avgRating = parseFloat(getAverageRating(key));
       attractionArray.push(attraction);
     }
   }
@@ -180,21 +199,11 @@ function loadAttractions() {
   displayAttractions(attractionArray);
 }
 
-function getLowestTicketPrice(attraction) {
-  if (isNaN(attraction.registrationFee)) {
-    return Infinity;
-  } else {
-    return attraction.registrationFee;
-  }
-}
-
-function getCheckInCount(key) {
-  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
-}
-
 function displayAttractions(list) {
   const attractionList = document.getElementById('attractionList');
   attractionList.innerHTML = "";
+
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
 
   list.forEach(attraction => {
     const key = attraction.key;
@@ -213,41 +222,28 @@ function displayAttractions(list) {
       <div class="stars" data-key="${key}">`;
 
     for (let s = 1; s <= 5; s++) {
-      if (s <= attraction.rating) {
-        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
-      } else {
-        content += `<span data-star="${s}">&#9733;</span>`;
-      }
+      content += `<span data-star="${s}"${s <= attraction.rating ? ' class="selected"' : ''}>&#9733;</span>`;
     }
 
     content += `</div>
-      <div class="check-in">
-        <input type="checkbox" id="checkin_${key}"`;
-
-    if (isCheckedIn) {
-      content += ' checked';
-    }
-
-    content += `>
-        <label for="checkin_${key}">Check In (${checkInCount} total)</label>
-      </div>`;
+    <p><strong>Average Rating:</strong> ${attraction.avgRating} ⭐</p>
+    <div class="check-in">
+      <input type="checkbox" id="checkin_${key}"${isCheckedIn ? " checked" : ""}>
+      <label for="checkin_${key}">Check In (${checkInCount} total)</label>
+    </div>`;
 
     if (attraction.hours) {
-      content += `
-      <h4>Business Hours:</h4>
-      <ul>`;
+      content += `<h4>Business Hours:</h4><ul>`;
       for (const [day, time] of Object.entries(attraction.hours)) {
         content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
       }
       content += `</ul>`;
     }
 
-    content += `
-    <div style="margin-top: 10px; text-align: center;">
+    content += `<div style="margin-top: 10px; text-align: center;">
       <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
     </div>
-    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
-    `;
+    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>`;
 
     item.innerHTML = content;
 
@@ -255,9 +251,10 @@ function displayAttractions(list) {
     starContainer.addEventListener('click', function (event) {
       if (event.target.tagName === 'SPAN') {
         const starValue = parseInt(event.target.getAttribute('data-star'));
-        localStorage.setItem('rating_' + key, starValue);
+        localStorage.setItem("rating_" + key + "_" + currentUser, starValue);
         attraction.rating = starValue;
-        updateStarDisplay(starContainer, starValue);
+        attraction.avgRating = parseFloat(getAverageRating(key));
+        displayAttractions(attractionArray);
       }
     });
 
@@ -275,13 +272,6 @@ function displayAttractions(list) {
   });
 }
 
-function updateStarDisplay(container, rating) {
-  Array.from(container.children).forEach(star => {
-    const starNumber = parseInt(star.getAttribute('data-star'));
-    star.classList.toggle('selected', starNumber <= rating);
-  });
-}
-
 function sortAttractions() {
   const sortVal = document.getElementById("sortSelect").value;
 
@@ -293,6 +283,8 @@ function sortAttractions() {
     attractionArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {
     attractionArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "avgRating") {
+    attractionArray.sort((a, b) => b.avgRating - a.avgRating);
   } else if (sortVal === "checkins") {
     attractionArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
   }
@@ -316,7 +308,6 @@ function toggleChatbox(businessId, btn) {
 
 window.onload = loadAttractions;
 </script>
-
 <script src="chat.js"></script>
 </body>
 </html>

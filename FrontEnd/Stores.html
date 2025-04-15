@@ -16,7 +16,6 @@
       align-items: center;
       position: relative;
     }
-
     body::before {
       content: "";
       position: absolute;
@@ -27,7 +26,6 @@
       background: rgba(0, 0, 0, 0.6);
       z-index: -1;
     }
-
     .page-header {
       width: 100%;
       background: rgba(30, 58, 138, 0.9);
@@ -37,13 +35,11 @@
       font-size: 24px;
       font-weight: bold;
     }
-
     .page-content {
       text-align: center;
       padding: 40px 20px;
       width: 100%;
     }
-
     .list-container {
       display: flex;
       flex-wrap: wrap;
@@ -52,7 +48,6 @@
       max-width: 1200px;
       margin: 20px auto;
     }
-
     .list-item {
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
@@ -63,18 +58,15 @@
       font-size: 16px;
       color: #333;
     }
-
     .stars {
       font-size: 24px;
       cursor: pointer;
       color: #ccc;
       margin: 5px 0;
     }
-
     .stars span.selected {
       color: gold;
     }
-
     .btn {
       background: #1E3A8A;
       color: white;
@@ -88,17 +80,14 @@
       border: none;
       cursor: pointer;
     }
-
     .btn:hover {
       background: #152C5B;
     }
-
     .sort-section {
       margin-bottom: 20px;
       position: relative;
       display: inline-block;
     }
-
     .sort-section select {
       padding: 8px 32px 8px 12px;
       border-radius: 6px;
@@ -108,9 +97,8 @@
       color: #333;
       border: none;
     }
-
     .sort-section::after {
-      content: "▼";
+      content: "\25BC";
       position: absolute;
       top: 50%;
       right: 12px;
@@ -121,15 +109,11 @@
     }
   </style>
 </head>
-
 <body>
-
 <header class="page-header">
   <h1>Stores</h1>
 </header>
-
 <section class="page-content">
-
   <div class="sort-section">
     <label for="sortSelect">Sort by:</label>
     <select id="sortSelect" onchange="sortStores()">
@@ -138,44 +122,18 @@
       <option value="high">Price (Highest)</option>
       <option value="ratingHigh">Rating (High to Low)</option>
       <option value="ratingLow">Rating (Low to High)</option>
+      <option value="avgRating">Average Rating (High to Low)</option>
       <option value="checkins">Most Check-Ins</option>
     </select>
   </div>
-
   <div class="list-container" id="storeList"></div>
-
   <a href="homepage.html" class="btn">Back to Homepage</a>
-
 </section>
-
 <script>
 let storeArray = [];
 
-function loadStores() {
-  const storeList = document.getElementById('storeList');
-  storeList.innerHTML = "";
-
-  const selectedCity = localStorage.getItem("selectedCity");
-  if (!selectedCity) {
-    alert("No city selected. Please select a city first.");
-    window.location.href = "select-city.html";
-    return;
-  }
-
-  const normalizedCity = selectedCity.replace(/\s+/g, "_");
-  storeArray = [];
-
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("store_" + normalizedCity + "_")) {
-      const store = JSON.parse(localStorage.getItem(key));
-      store.key = key;
-      store.rating = parseInt(localStorage.getItem("rating_" + key)) || 0;
-      storeArray.push(store);
-    }
-  }
-
-  displayStores(storeArray);
+function getCheckInCount(key) {
+  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
 }
 
 function getLowestProductPrice(products) {
@@ -183,13 +141,51 @@ function getLowestProductPrice(products) {
   return prices.length > 0 ? Math.min(...prices) : Infinity;
 }
 
-function getCheckInCount(key) {
-  return parseInt(localStorage.getItem("checkins_" + key)) || 0;
+function getAverageRating(key) {
+  let total = 0;
+  let count = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith("rating_" + key + "_")) {
+      const rating = parseInt(localStorage.getItem(k));
+      if (!isNaN(rating)) {
+        total += rating;
+        count++;
+      }
+    }
+  }
+  return count > 0 ? (total / count).toFixed(1) : "0.0";
+}
+
+function loadStores() {
+  const storeList = document.getElementById('storeList');
+  storeList.innerHTML = "";
+  const selectedCity = localStorage.getItem("selectedCity");
+  if (!selectedCity) {
+    alert("No city selected. Please select a city first.");
+    window.location.href = "select-city.html";
+    return;
+  }
+  const normalizedCity = selectedCity.replace(/\s+/g, "_");
+  storeArray = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("store_" + normalizedCity + "_")) {
+      const store = JSON.parse(localStorage.getItem(key));
+      store.key = key;
+      const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
+      store.rating = parseInt(localStorage.getItem("rating_" + key + "_" + currentUser)) || 0;
+      store.avgRating = parseFloat(getAverageRating(key));
+      storeArray.push(store);
+    }
+  }
+  displayStores(storeArray);
 }
 
 function displayStores(list) {
   const storeList = document.getElementById('storeList');
   storeList.innerHTML = "";
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"))?.email || "guest";
 
   list.forEach(store => {
     const key = store.key;
@@ -206,47 +202,32 @@ function displayStores(list) {
       <p><strong>Description:</strong> ${store.description}</p>
       <p><strong>Starting From:</strong> $${getLowestProductPrice(store.products) === Infinity ? "N/A" : getLowestProductPrice(store.products)}</p>
       <h4>Products:</h4>
-      <ul>
-        ${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
-      </ul>
+      <ul>${store.products.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}</ul>
       <div class="stars" data-key="${key}">`;
 
     for (let s = 1; s <= 5; s++) {
-      if (s <= store.rating) {
-        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
-      } else {
-        content += `<span data-star="${s}">&#9733;</span>`;
-      }
+      content += `<span data-star="${s}"${s <= store.rating ? ' class="selected"' : ''}>&#9733;</span>`;
     }
 
     content += `</div>
-      <div class="check-in">
-        <input type="checkbox" id="checkin_${key}"`;
-
-    if (isCheckedIn) {
-      content += ' checked';
-    }
-
-    content += `>
-        <label for="checkin_${key}">Check In (${checkInCount} total)</label>
-      </div>`;
+    <p><strong>Average Rating:</strong> ${store.avgRating} ⭐</p>
+    <div class="check-in">
+      <input type="checkbox" id="checkin_${key}"${isCheckedIn ? " checked" : ""}>
+      <label for="checkin_${key}">Check In (${checkInCount} total)</label>
+    </div>`;
 
     if (store.hours) {
-      content += `
-      <h4>Business Hours:</h4>
-      <ul>`;
+      content += `<h4>Business Hours:</h4><ul>`;
       for (const [day, time] of Object.entries(store.hours)) {
         content += `<li><strong>${day}:</strong> ${time.open} - ${time.close}</li>`;
       }
       content += `</ul>`;
     }
 
-    content += `
-    <div style="margin-top: 10px; text-align: center;">
+    content += `<div style="margin-top: 10px; text-align: center;">
       <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
     </div>
-    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
-    `;
+    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>`;
 
     item.innerHTML = content;
 
@@ -254,9 +235,10 @@ function displayStores(list) {
     starContainer.addEventListener('click', function (event) {
       if (event.target.tagName === 'SPAN') {
         const starValue = parseInt(event.target.getAttribute('data-star'));
-        localStorage.setItem('rating_' + key, starValue);
+        localStorage.setItem("rating_" + key + "_" + currentUser, starValue);
         store.rating = starValue;
-        updateStarDisplay(starContainer, starValue);
+        store.avgRating = parseFloat(getAverageRating(key));
+        displayStores(storeArray);
       }
     });
 
@@ -274,16 +256,8 @@ function displayStores(list) {
   });
 }
 
-function updateStarDisplay(container, rating) {
-  Array.from(container.children).forEach(star => {
-    const starNumber = parseInt(star.getAttribute('data-star'));
-    star.classList.toggle('selected', starNumber <= rating);
-  });
-}
-
 function sortStores() {
   const sortVal = document.getElementById("sortSelect").value;
-
   if (sortVal === "low") {
     storeArray.sort((a, b) => getLowestProductPrice(a.products) - getLowestProductPrice(b.products));
   } else if (sortVal === "high") {
@@ -292,17 +266,17 @@ function sortStores() {
     storeArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {
     storeArray.sort((a, b) => a.rating - b.rating);
+  } else if (sortVal === "avgRating") {
+    storeArray.sort((a, b) => b.avgRating - a.avgRating);
   } else if (sortVal === "checkins") {
     storeArray.sort((a, b) => getCheckInCount(b.key) - getCheckInCount(a.key));
   }
-
   displayStores(storeArray);
 }
 
 function toggleChatbox(businessId, btn) {
   const containerId = `chatbox_${businessId}`;
   const chatContainer = document.getElementById(containerId);
-
   if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
     chatContainer.style.display = "block";
     createChatBox(businessId, containerId);
@@ -315,8 +289,6 @@ function toggleChatbox(businessId, btn) {
 
 window.onload = loadStores;
 </script>
-
 <script src="chat.js"></script>
-
 </body>
 </html>
