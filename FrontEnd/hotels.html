@@ -205,27 +205,20 @@ function displayHotels(list) {
       <p><strong>City:</strong> ${hotel.city}</p>
       <p><strong>Address:</strong> ${hotel.address}</p>
       <p><strong>Description:</strong> ${hotel.description}</p>
-      <p><strong>Price:</strong> $${hotel.price || "N/A"}</p>
+      <p><strong>Prices:</strong> ${
+        hotel.rooms && hotel.rooms.length > 0
+          ? "$" + hotel.rooms.map(r => r.price).join(", $")
+          : "N/A"
+      }</p>
       <div class="stars" data-key="${key}">`;
 
-  
     for (let s = 1; s <= 5; s++) {
-      if (s <= hotel.rating) {
-        content += `<span data-star="${s}" class="selected">&#9733;</span>`;
-      } else {
-        content += `<span data-star="${s}">&#9733;</span>`;
-      }
+      content += `<span data-star="${s}"${s <= hotel.rating ? ' class="selected"' : ''}>&#9733;</span>`;
     }
 
     content += `</div>
     <div class="check-in">
-      <input type="checkbox" id="checkin_${key}"`;
-
-    if (isCheckedIn) {
-      content += ' checked';
-    }
-
-    content += `>
+      <input type="checkbox" id="checkin_${key}"${isCheckedIn ? " checked" : ""}>
       <label for="checkin_${key}">Check In (${checkInCount} total)</label>
     </div>`;
 
@@ -243,8 +236,7 @@ function displayHotels(list) {
     <div style="margin-top: 10px; text-align: center;">
       <button onclick="toggleChatbox('${key}', this)" class="btn">Comments</button>
     </div>
-    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>
-    `;
+    <div id="chatbox_${key}" style="display:none; margin-top: 10px;"></div>`;
 
     item.innerHTML = content;
 
@@ -283,9 +275,9 @@ function sortHotels() {
   const sortVal = document.getElementById("sortSelect").value;
 
   if (sortVal === "low") {
-    hotelArray.sort((a, b) => (parseFloat(a.price) || Infinity) - (parseFloat(b.price) || Infinity));
+    hotelArray.sort((a, b) => (parseFloat(a.rooms?.[0]?.price) || Infinity) - (parseFloat(b.rooms?.[0]?.price) || Infinity));
   } else if (sortVal === "high") {
-    hotelArray.sort((a, b) => (parseFloat(b.price) || Infinity) - (parseFloat(a.price) || Infinity));
+    hotelArray.sort((a, b) => (parseFloat(b.rooms?.[0]?.price) || 0) - (parseFloat(a.rooms?.[0]?.price) || 0));
   } else if (sortVal === "ratingHigh") {
     hotelArray.sort((a, b) => b.rating - a.rating);
   } else if (sortVal === "ratingLow") {

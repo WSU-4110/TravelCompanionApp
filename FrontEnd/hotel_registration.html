@@ -132,6 +132,7 @@
         hours: {}
       };
 
+      // Add room data
       const roomDivs = document.querySelectorAll("#roomContainer div");
       roomDivs.forEach(div => {
         const type = div.children[0].value;
@@ -141,6 +142,12 @@
         }
       });
 
+      // Add a default price for sorting (first room's price)
+      if (hotel.rooms.length > 0) {
+        hotel.price = hotel.rooms[0].price;
+      }
+
+      // Add business hours
       const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
       const timeInputs = document.querySelectorAll(".times-grid input");
       for (let i = 0; i < days.length; i++) {
@@ -150,6 +157,7 @@
         };
       }
 
+      // Save to localStorage
       const key = "hotel_" + normalizedCity + "_" + Date.now();
       localStorage.setItem(key, JSON.stringify(hotel));
 
