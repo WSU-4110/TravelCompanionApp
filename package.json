@@ -1,0 +1,25 @@
+{
+  "name": "travelcompanionapp",
+  "version": "1.0.0",
+  "description": "Simplifying travel experiences with all-in-one solutions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WSU-4110/TravelCompanionApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WSU-4110/TravelCompanionApp/issues"
+  },
+  "homepage": "https://github.com/WSU-4110/TravelCompanionApp#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+  
+}
