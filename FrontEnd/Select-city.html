@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select a City - Travel Companion</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <img src="images/hero-image.jpg" alt="Travel Companion Hero Image" class="hero-image">
+  <div class="hero-content">
+    <h1>Travel Companion</h1>
+    <p>Select your city to begin your journey</p>
+
+    <!-- City Dropdown Selection -->
+    <form class="search-bar" onsubmit="saveCity(event)">
+      <select id="cityDropdown" required>
+        <option value="">-- Select a city --</option>
+        <!-- Options will be populated from cities.csv -->
+      </select>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <h3>Travel Companion App</h3>
+    <p>Project by:</p>
+    <ul class="team-members">
+      <li>Adebola Fagade</li>
+      <li>Ayham Huq</li>
+      <li>Angelo Reyes</li>
+      <li>Hady Saleh</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  // Load cities from cities.csv
+  fetch('cities.csv')
+    .then(response => response.text())
+    .then(data => {
+      const lines = data.split('\n');
+      const dropdown = document.getElementById('cityDropdown');
+
+      lines.forEach(line => {
+        const city = line.trim();
+        if (city) {
+          const option = document.createElement('option');
+          option.value = city;
+          option.textContent = city;
+          dropdown.appendChild(option);
+        }
+      });
+    })
+    .catch(error => console.error("Failed to load cities.csv:", error));
+
+  function saveCity(event) {
+    event.preventDefault();
+    const selectedCity = document.getElementById("cityDropdown").value;
+
+    if (!selectedCity) {
+      alert("Please select a city before continuing.");
+      return;
+    }
+
+    localStorage.setItem("selectedCity", selectedCity);
+    window.location.href = "homepage.html";
+  }
+</script>
+
+</body>
+</html>

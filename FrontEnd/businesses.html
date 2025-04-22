@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Business - Travel Companion</title>
+
+    <style>
+        /* Background Image */
+        body {
+            background: url('images/hero-image.jpg') no-repeat center center/cover;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Page Header */
+        .page-header {
+            width: 100%;
+            background: #1E3A8A;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Page Content */
+        .page-content {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        /* Input Fields */
+        .input-field {
+            width: 80%;
+            max-width: 400px;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            cursor: pointer;
+        }
+
+        /* Button */
+        .btn {
+            padding: 12px 20px;
+            background: #1E3A8A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            margin: 10px auto;
+        }
+
+        .btn:hover {
+            background: #152C5B;
+        }
+
+        /* Back Button */
+        .back-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-btn .btn {
+            background: #1E3A8A;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-btn .btn:hover {
+            background: #152C5B;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Register Your Business</h1>
+    </header>
+
+    <!-- Business Registration Form -->
+    <section class="page-content">
+        <h2>Select Business Type</h2>
+        
+        <!-- Dropdown for business type -->
+        <select id="businessType" class="input-field" onchange="redirectToForm()">
+            <option value="">-- Select Business Type --</option>
+            <option value="hotel_registration.html">🏨 Hotel</option>
+            <option value="restaurant_registration.html">🍽️ Restaurant</option>
+            <option value="airbnb_registration.html">🏡 Airbnb</option>
+            <option value="attraction_registration.html">🏞️ Attraction</option>
+            <option value="stores_registration.html">🛍️ Store</option>
+            <option value="Advertisements.html"> Advertise Your Business!</option>
+
+        </select>
+
+        <!-- Back to Homepage Button -->
+        <div class="back-btn">
+            <a href="HomePage.html" class="btn">Back to Homepage</a>
+        </div>
+    </section>
+
+    <script>
+        function redirectToForm() {
+            let businessType = document.getElementById("businessType").value;
+
+            if (businessType) {
+                window.location.href = businessType;
+            }
+        }
+    </script>
+
+</body>
+</html>

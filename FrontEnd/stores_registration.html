@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Your Store - Travel Companion</title>
+    <style>
+        body {
+            background: url('images/hero-image.jpg') no-repeat center center/cover;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px;
+            background: #1E3A8A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: #152C5B;
+        }
+
+        .times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .times-grid label {
+            font-weight: bold;
+            color: #1E3A8A;
+        }
+
+        .times-grid input {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Register Your Store</h2>
+    <form id="storeForm" onsubmit="storeStore(); return false;">
+        <input type="text" id="storeName" placeholder="Store Name" required>
+        <textarea id="description" placeholder="Store Description" required></textarea>
+        <input type="text" id="city" readonly>
+        <input type="text" id="address" placeholder="Address" required>
+
+        <h4>Store Products</h4>
+        <div id="productsContainer">
+            <div>
+                <input type="text" placeholder="Product Name">
+                <input type="number" placeholder="Price ($)">
+            </div>
+        </div>
+        <button type="button" class="btn" onclick="addProduct()">+ Add Product</button>
+
+        <h4>Business Hours</h4>
+        <div class="times-grid" id="hoursGrid">
+            <label>Monday: <input type="time"> to <input type="time"></label>
+            <label>Tuesday: <input type="time"> to <input type="time"></label>
+            <label>Wednesday: <input type="time"> to <input type="time"></label>
+            <label>Thursday: <input type="time"> to <input type="time"></label>
+            <label>Friday: <input type="time"> to <input type="time"></label>
+            <label>Saturday: <input type="time"> to <input type="time"></label>
+            <label>Sunday: <input type="time"> to <input type="time"></label>
+        </div>
+
+        <button type="submit" class="btn">Submit Store</button>
+    </form>
+</div>
+
+<script>
+    window.onload = function () {
+        const selectedCity = localStorage.getItem('selectedCity');
+        if (!selectedCity) {
+            alert("Please select a city before registering.");
+            window.location.href = "select-city.html";
+            return;
+        }
+        document.getElementById("city").value = selectedCity;
+    };
+
+    function addProduct() {
+        const container = document.getElementById('productsContainer');
+        const itemDiv = document.createElement('div');
+        itemDiv.innerHTML = `
+            <input type="text" placeholder="Product Name">
+            <input type="number" placeholder="Price ($)">
+        `;
+        container.appendChild(itemDiv);
+    }
+
+    function storeStore() {
+        const selectedCity = localStorage.getItem('selectedCity');
+        const normalizedCity = selectedCity.replace(/\s+/g, "_");
+
+        const store = {
+            name: document.getElementById('storeName').value,
+            city: selectedCity,
+            address: document.getElementById('address').value,
+            description: document.getElementById('description').value,
+            products: [],
+            hours: {}
+        };
+
+        // Get products
+        const productDivs = document.querySelectorAll('#productsContainer div');
+        productDivs.forEach(div => {
+            const name = div.children[0].value;
+            const price = div.children[1].value;
+            if (name && price) {
+                store.products.push({ name, price: parseFloat(price) });
+            }
+        });
+
+        // Get hours
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const timeInputs = document.querySelectorAll('.times-grid input');
+        for (let i = 0; i < days.length; i++) {
+            store.hours[days[i]] = {
+                open: timeInputs[i * 2].value,
+                close: timeInputs[i * 2 + 1].value
+            };
+        }
+
+        const key = "store_" + normalizedCity + "_" + Date.now();
+        localStorage.setItem(key, JSON.stringify(store));
+
+        alert("Store registered successfully!");
+        document.getElementById("storeForm").reset();
+        document.getElementById("productsContainer").innerHTML = `
+            <div>
+                <input type="text" placeholder="Product Name">
+                <input type="number" placeholder="Price ($)">
+            </div>
+        `;
+        window.location.href = "stores.html";
+    }
+</script>
+
+</body>
+</html>
